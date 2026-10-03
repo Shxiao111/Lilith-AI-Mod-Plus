@@ -77,7 +77,6 @@ public sealed class Plugin : BasePlugin
     internal static ConfigEntry<string> WrongedVoiceReferencePath = null!;
     internal static ConfigEntry<string> SleepyVoiceReferencePath = null!;
     internal static ConfigEntry<string> JapaneseVoiceEndpoint = null!;
-    internal static ConfigEntry<bool> JapaneseVoiceSelected = null!;
     internal static ConfigEntry<string> JapaneseVoiceReferencePath = null!;
     internal static ConfigEntry<string> JapaneseCalmAuxVoiceReferencePath = null!;
     internal static ConfigEntry<string> JapaneseExcitedVoiceReferencePath = null!;
@@ -101,7 +100,6 @@ public sealed class Plugin : BasePlugin
     internal static ConfigEntry<bool> CollectUnvoicedNativeLines = null!;
     internal static ConfigEntry<bool> NativeVoicePackEnabled = null!;
     internal static ConfigEntry<string> NativeVoicePackDirectory = null!;
-    internal static ConfigEntry<string> JapaneseNativeVoicePackDirectory = null!;
     internal static ConfigEntry<bool> VoiceInputEnabled = null!;
     internal static ConfigEntry<int> VoiceInputMaxSeconds = null!;
     internal static ConfigEntry<string> VoiceInputDeviceName = null!;
@@ -172,8 +170,6 @@ public sealed class Plugin : BasePlugin
             "Auxiliary reference WAV used while Lilith is sleeping, lying down, or yawning.");
         JapaneseVoiceEndpoint = Config.Bind("JapaneseVoice", "Endpoint", "http://127.0.0.1:9881/tts",
             "GPT-SoVITS endpoint for Japanese speech while the game's voice setting is Japanese.");
-        JapaneseVoiceSelected = Config.Bind("JapaneseVoice", "Selected", false,
-            "Remember Japanese game/AI voice selection across restarts.");
         JapaneseVoiceReferencePath = Config.Bind("JapaneseVoice", "CalmReferencePath",
             Path.Combine(Paths.BepInExRootPath, "data", "LilithTextInjector", "voice", "jp", "calm-reference.wav"),
             "Primary Japanese reference WAV.");
@@ -223,13 +219,10 @@ public sealed class Plugin : BasePlugin
         CollectUnvoicedNativeLines = Config.Bind("Voice", "CollectUnvoicedNativeLines", true,
             "Record fixed native dialogue nodes that have no original voice into a TSV manifest for safe pre-generation.");
         NativeVoicePackEnabled = Config.Bind("Voice", "NativeVoicePackEnabled", true,
-            "Play supplemental WAV files only for native dialogue lines that have no original or action voice.");
+            "Play supplemental Chinese WAV files only for native dialogue lines that have no original or action voice; Japanese dialogue uses official audio.");
         NativeVoicePackDirectory = Config.Bind("Voice", "NativeVoicePackDirectory",
             Path.Combine(Paths.BepInExRootPath, "data", "LilithTextInjector", "native-voice-pack"),
             "Directory containing the Chinese manifest.tsv and supplemental native dialogue WAV files.");
-        JapaneseNativeVoicePackDirectory = Config.Bind("JapaneseVoice", "NativeVoicePackDirectory",
-            Path.Combine(Paths.BepInExRootPath, "data", "LilithTextInjector", "native-voice-pack-ja"),
-            "Directory containing the Japanese manifest.tsv and supplemental native dialogue WAV files.");
         VoiceInputEnabled = Config.Bind("VoiceInput", "Enabled", true,
             "Hold F6 to record from the default microphone; release to transcribe with the active AI provider and send as chat input.");
         VoiceInputMaxSeconds = Config.Bind("VoiceInput", "MaxRecordingSeconds", 60,
@@ -255,7 +248,6 @@ public sealed class Plugin : BasePlugin
         TryCreateAndPatchAll(typeof(GiftExchangeApiKeyPatch), PluginGuid + ".apikey", "API key window hooks");
         TryCreateAndPatchAll(typeof(GiftExchangeApiKeyHidePatch), PluginGuid + ".apikeyhide", "API key window isolation hooks");
         TryCreateAndPatchAll(typeof(TrayMenuLocalizationPatch), PluginGuid + ".traylocalization", "tray localization hook");
-        TryCreateAndPatchAll(typeof(VoiceSettingsButtonClickPatch), PluginGuid + ".voicelanguage", "voice language preference hook");
         TryCreateAndPatchAll(typeof(NewTraySettingsCompatibilityPatches), PluginGuid + ".newtraysettings", "new tray settings compatibility hooks");
         Log.LogInfo($"Loaded. Press {TextInputKey.Value} for text chat; hold {VoiceInputKey.Value} for push-to-talk voice input.");
         if (string.IsNullOrWhiteSpace(GeminiApiKey.Value))
@@ -302,76 +294,12 @@ public sealed class Plugin : BasePlugin
 
 internal static class NewTraySettingsCompatibilityPatches
 {
-    private const string JapaneseVoiceLocalizationKey = "LilithModJapaneseVoice";
-    private static bool _japaneseOptionLogged;
-
     [HarmonyPatch(typeof(TraySettingNewView), "BindAndInitItem")]
     [HarmonyPostfix]
     private static void RecordNativeSettingRow(
         TraySettingNewView __instance, GameObject go, TraySettingConfig.SettingItemEntry entry)
     {
         NewTraySettingsAdapter.RecordBoundItem(__instance, go, entry);
-    }
-
-    [HarmonyPatch(typeof(TraySettingNewView), "ResolveToggleOptions")]
-    [HarmonyPostfix]
-    private static void RestoreJapaneseGameVoiceOption(
-        string itemId,
-        ref Il2CppReferenceArray<Il2CppSystem.ValueTuple<string, string, int>> __result)
-    {
-        if (!string.Equals(itemId, TraySettingModel.Keys.GameVoice, StringComparison.Ordinal))
-            return;
-
-        var japaneseValue = (int)TraySettingChanged.GameLocalizationVoiceType.Japanese;
-        if (__result != null)
-        {
-            for (var index = 0; index < __result.Length; index++)
-            {
-                if (__result[index] != null && __result[index].Item3 == japaneseValue)
-                    return;
-            }
-        }
-
-        var existingLength = __result?.Length ?? 0;
-        var tableName = existingLength > 0 && __result![0] != null
-            ? __result[0].Item1
-            : SettingToggleItem.TrayUiTable;
-        EnsureJapaneseVoiceLocalization(tableName);
-        var options = new Il2CppReferenceArray<Il2CppSystem.ValueTuple<string, string, int>>(existingLength + 1);
-        for (var index = 0; index < existingLength; index++)
-            options[index] = __result![index];
-        options[existingLength] = new Il2CppSystem.ValueTuple<string, string, int>(
-            tableName,
-            JapaneseVoiceLocalizationKey,
-            japaneseValue);
-        __result = options;
-        if (!_japaneseOptionLogged)
-        {
-            _japaneseOptionLogged = true;
-            Plugin.PluginLog.LogInfo("Restored Japanese in the native GameVoice option array.");
-        }
-    }
-
-    private static void EnsureJapaneseVoiceLocalization(string tableName)
-    {
-        if (string.IsNullOrWhiteSpace(tableName))
-            throw new InvalidOperationException("The native GameVoice option did not provide a localization table.");
-        foreach (var locale in LocalizationSettings.AvailableLocales.Locales)
-        {
-            if (locale == null)
-                continue;
-            var code = locale.Identifier.Code ?? string.Empty;
-            var label = code.StartsWith("zh-CN", StringComparison.OrdinalIgnoreCase)
-                || code.StartsWith("zh-Hans", StringComparison.OrdinalIgnoreCase)
-                    ? "日语"
-                    : code.StartsWith("zh", StringComparison.OrdinalIgnoreCase)
-                        ? "日語"
-                        : code.StartsWith("ja", StringComparison.OrdinalIgnoreCase)
-                            ? "日本語"
-                            : "Japanese";
-            LocalizationSettings.StringDatabase.GetTable(tableName, locale)
-                ?.AddEntry(JapaneseVoiceLocalizationKey, label);
-        }
     }
 }
 
@@ -465,14 +393,8 @@ internal static class DialogueManagerUpdatePatch
             Plugin.PluginLog.LogWarning($"Could not inspect official application categories: {exception.Message}");
         }
     }
-    private static float _nextJapaneseVoiceUiScanAt;
     private static string _lastObservedVoiceLanguage = string.Empty;
-    private static readonly HashSet<string> LoggedVoiceUiObjects = new();
-    private static bool? _japaneseVoiceOverride;
-    private static bool _voicePreferenceInitialized;
-    private static bool _voicePreferenceAppliedToNativeUi;
     private static bool? _legacyTraySettingsAvailable;
-    private static float _nextJapaneseVoiceToggleRestoreAt;
     private static bool _voiceHostLaunchAttempted;
     private static Process? _voiceHostProcess;
     private static bool? _voiceHostJapaneseMode;
@@ -2881,15 +2803,6 @@ internal static class DialogueManagerUpdatePatch
 
         try
         {
-            EnsureJapaneseVoiceOptionVisible();
-        }
-        catch (Exception exception)
-        {
-            Plugin.PluginLog.LogWarning($"Could not update the game voice setting: {exception}");
-        }
-
-        try
-        {
             EnsureAdvancedComputerActionsToggle();
         }
         catch (Exception exception)
@@ -3352,104 +3265,6 @@ internal static class DialogueManagerUpdatePatch
         RebindingHeldVirtualKeys.Clear();
     }
 
-    private static void EnsureJapaneseVoiceOptionVisible()
-    {
-        if (!_voicePreferenceInitialized)
-        {
-            _voicePreferenceInitialized = true;
-            _japaneseVoiceOverride = Plugin.JapaneseVoiceSelected.Value;
-            Plugin.PluginLog.LogInfo($"Restored saved voice preference: {(Plugin.JapaneseVoiceSelected.Value ? "Japanese" : "Chinese/default")}.");
-        }
-        if (Time.unscaledTime < _nextJapaneseVoiceUiScanAt)
-            return;
-        _nextJapaneseVoiceUiScanAt = Time.unscaledTime + 1f;
-        try
-        {
-            var japaneseButtonIsPressed = false;
-            foreach (var button in Resources.FindObjectsOfTypeAll<ButtonPressedSwapSprite>())
-            {
-                if (button == null || button.gameObject == null)
-                    continue;
-                var path = GetTransformPath(button.transform);
-                if (path.IndexOf("voice", StringComparison.OrdinalIgnoreCase) < 0
-                    && path.IndexOf("語音", StringComparison.OrdinalIgnoreCase) < 0)
-                    continue;
-                if (LoggedVoiceUiObjects.Add(path))
-                    Plugin.PluginLog.LogInfo($"Voice setting button discovered: {path}, active={button.gameObject.activeSelf}.");
-                var isJapaneseButton = Regex.IsMatch(button.gameObject.name, "(^|[_ -])(jp|ja|japan|japanese)($|[_ -])", RegexOptions.IgnoreCase)
-                    || (path.IndexOf("/gameVoice/Buttons/", StringComparison.OrdinalIgnoreCase) >= 0
-                        && string.Equals(button.gameObject.name, "Toggle_Right (2)", StringComparison.Ordinal));
-                if (isJapaneseButton)
-                {
-                    if (!button.gameObject.activeSelf)
-                    {
-                        button.gameObject.SetActive(true);
-                        Plugin.PluginLog.LogInfo($"Enabled existing Japanese voice setting button: {path}.");
-                    }
-                    if (Plugin.JapaneseVoiceSelected.Value && !_voicePreferenceAppliedToNativeUi)
-                    {
-                        if (PublishJapaneseVoiceSelection())
-                        {
-                            _voicePreferenceAppliedToNativeUi = true;
-                            _nextJapaneseVoiceToggleRestoreAt = Time.unscaledTime + 3f;
-                        }
-                    }
-                    var isPressed = button.IsPressed;
-                    japaneseButtonIsPressed |= isPressed;
-                }
-            }
-
-            if (Plugin.JapaneseVoiceSelected.Value
-                && _japaneseVoiceOverride == true
-                && !japaneseButtonIsPressed
-                && Time.unscaledTime >= _nextJapaneseVoiceToggleRestoreAt)
-            {
-                _nextJapaneseVoiceToggleRestoreAt = Time.unscaledTime + 3f;
-                if (PublishJapaneseVoiceSelection())
-                    _voicePreferenceAppliedToNativeUi = true;
-            }
-        }
-        catch (Exception exception)
-        {
-            Plugin.PluginLog.LogWarning($"Could not inspect Japanese voice setting UI: {exception.Message}");
-        }
-    }
-
-    internal static void NotifyVoiceSettingsButtonClicked(ButtonPressedSwapSprite button)
-    {
-        try
-        {
-            if (button == null || button.gameObject == null || !button.IsPressed)
-                return;
-
-            var path = GetTransformPath(button.transform);
-            if (path.IndexOf("/gameVoice/Buttons/", StringComparison.OrdinalIgnoreCase) < 0)
-                return;
-
-            var isJapaneseButton = Regex.IsMatch(button.gameObject.name, "(^|[_ -])(jp|ja|japan|japanese)($|[_ -])", RegexOptions.IgnoreCase)
-                || string.Equals(button.gameObject.name, "Toggle_Right (2)", StringComparison.Ordinal);
-            var isChineseButton = string.Equals(button.gameObject.name, "Toggle_Right", StringComparison.Ordinal);
-            if (!isJapaneseButton && !isChineseButton)
-                return;
-
-            var japanese = isJapaneseButton;
-            _japaneseVoiceOverride = japanese;
-            Plugin.JapaneseVoiceSelected.Value = japanese;
-            _voicePreferenceAppliedToNativeUi = true;
-            _nextJapaneseVoiceToggleRestoreAt = japanese
-                ? Time.unscaledTime + 3f
-                : float.PositiveInfinity;
-            Plugin.PluginLog.LogInfo(japanese
-                ? "Japanese voice preference saved from a direct settings button click."
-                : "Chinese/default voice preference saved from a direct settings button click; pending Japanese restoration cancelled.");
-            EnsureNativeVoiceManifestLoaded();
-        }
-        catch (Exception exception)
-        {
-            Plugin.PluginLog.LogWarning($"Could not save the clicked voice setting: {exception.Message}");
-        }
-    }
-
     private static void EnsureApiKeyTrayMenu()
     {
         try
@@ -3805,58 +3620,6 @@ internal static class DialogueManagerUpdatePatch
         }
     }
 
-    private static bool PublishJapaneseVoiceSelection()
-    {
-        try
-        {
-            var controllerType = Type.GetType(
-                "UI.TraySetting.TraySettingController, Assembly-CSharp", throwOnError: false)
-                ?? throw new TypeLoadException("Legacy TraySettingController is unavailable.");
-            var toggleType = Type.GetType(
-                "UI.TraySetting.TraySettingGameVoiceToggleButtons, Assembly-CSharp", throwOnError: false)
-                ?? throw new TypeLoadException("Legacy TraySettingGameVoiceToggleButtons is unavailable.");
-            var controllerMethod = controllerType.GetMethod(
-                "OnGameVoiceChanged",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                ?? throw new MissingMethodException("TraySettingController.OnGameVoiceChanged was not found.");
-            var voiceType = controllerMethod.GetParameters()[0].ParameterType;
-            var japanese = voiceType.GetField(
-                "Japanese",
-                BindingFlags.Public | BindingFlags.Static)?.GetValue(null)
-                ?? throw new MissingFieldException("Japanese voice enum value was not found.");
-
-            var toggleMethod = toggleType.GetMethod(
-                "SetVoiceWithoutNotify",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                ?? throw new MissingMethodException("TraySettingGameVoiceToggleButtons.SetVoiceWithoutNotify was not found.");
-            var toggleGroups = Resources.FindObjectsOfTypeAll(Il2CppType.From(toggleType));
-            if (toggleGroups == null || toggleGroups.Length == 0)
-                throw new InvalidOperationException("Game voice toggle group was not found.");
-            var synchronizedToggleGroups = 0;
-            foreach (var toggleGroup in toggleGroups)
-            {
-                if (toggleGroup == null)
-                    continue;
-                toggleMethod.Invoke(toggleGroup, new[] { japanese });
-                synchronizedToggleGroups++;
-            }
-            if (synchronizedToggleGroups == 0)
-                throw new InvalidOperationException("No game voice toggle group could be synchronized.");
-
-            var controllers = Resources.FindObjectsOfTypeAll(Il2CppType.From(controllerType));
-            if (controllers == null || controllers.Length == 0)
-                throw new InvalidOperationException("Active TraySettingController was not found.");
-            controllerMethod.Invoke(controllers[0], new[] { japanese });
-            Plugin.PluginLog.LogInfo($"Restored Japanese game voice and synchronized {synchronizedToggleGroups} native toggle group(s).");
-            return true;
-        }
-        catch (Exception exception)
-        {
-            Plugin.PluginLog.LogWarning($"Could not publish Japanese game voice selection: {exception.Message}");
-            return false;
-        }
-    }
-
     private static string GetTransformPath(Transform? transform)
     {
         var names = new List<string>();
@@ -3874,22 +3637,16 @@ internal static class DialogueManagerUpdatePatch
         try
         {
             var language = LocalizationConfig.GetCurrentVoiceLanguage() ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(language))
-            {
-                // TraySettingNewView owns the native Chinese/Japanese selector.
-                // Mirror that selection into the MOD instead of adding a second
-                // voice-language control to the Sound tab.
-                var japanese = language.StartsWith("ja", StringComparison.OrdinalIgnoreCase);
-                _voicePreferenceInitialized = true;
-                _japaneseVoiceOverride = japanese;
-                if (Plugin.JapaneseVoiceSelected.Value != japanese)
-                    Plugin.JapaneseVoiceSelected.Value = japanese;
-            }
             if (string.Equals(language, _lastObservedVoiceLanguage, StringComparison.OrdinalIgnoreCase))
                 return;
             _lastObservedVoiceLanguage = language;
-            Plugin.PluginLog.LogInfo($"Game voice language changed to '{language}'; selecting {(language.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ? "Japanese" : "Chinese/default")} supplemental voice pack.");
-            EnsureNativeVoiceManifestLoaded();
+            // Official settings own voice selection; AI speech follows the same language.
+            NativeVoiceFilesByLineId.Clear();
+            NativeVoiceDurationByNodeId.Clear();
+            _loadedNativeVoicePackDirectory = string.Empty;
+            _lastInjectedNativeNodeId = -1;
+            _lastInjectedNativeVoiceAt = -10f;
+            Plugin.PluginLog.LogInfo($"Game voice language changed to '{language}'; AI speech follows the official voice setting.");
         }
         catch (Exception exception)
         {
@@ -5592,8 +5349,6 @@ internal static class DialogueManagerUpdatePatch
 
     private static bool IsJapaneseVoiceMode()
     {
-        if (_japaneseVoiceOverride.HasValue)
-            return _japaneseVoiceOverride.Value;
         try
         {
             var language = LocalizationConfig.GetCurrentVoiceLanguage() ?? string.Empty;
@@ -6384,41 +6139,30 @@ internal static class DialogueManagerUpdatePatch
 
     internal static bool TryPlayInjectedNativeVoice(DialogueNode node)
     {
-        if (!Plugin.NativeVoicePackEnabled.Value || node == null)
+        // Official Japanese audio owns every native dialogue/action playback path.
+        if (IsJapaneseVoiceMode() || !Plugin.NativeVoicePackEnabled.Value || node == null)
             return false;
         if (node.id == _lastInjectedNativeNodeId && Time.unscaledTime - _lastInjectedNativeVoiceAt < 1f)
             return true;
-        var japaneseMode = IsJapaneseVoiceMode();
-        if (!japaneseMode)
+        var soundId = node.soundId ?? string.Empty;
+        try
         {
-            var soundId = node.soundId ?? string.Empty;
-            try
-            {
-                if (string.IsNullOrWhiteSpace(soundId))
-                    DialogueLineRepository.TryGetVoiceSoundId(node.lineId, out soundId);
-                if (!string.IsNullOrWhiteSpace(soundId) && ResourceManager.LoadVoiceClip(soundId) != null)
-                    return false;
-                if (node.actionType != LilithActionType.None && ResourceManager.LoadActionVoiceClip(node.actionType) != null)
-                    return false;
-            }
-            catch (Exception exception)
-            {
-                Plugin.PluginLog.LogWarning($"Could not verify native voice before injection: {exception.Message}");
+            if (string.IsNullOrWhiteSpace(soundId))
+                DialogueLineRepository.TryGetVoiceSoundId(node.lineId, out soundId);
+            if (!string.IsNullOrWhiteSpace(soundId) && ResourceManager.LoadVoiceClip(soundId) != null)
                 return false;
-            }
+            if (node.actionType != LilithActionType.None && ResourceManager.LoadActionVoiceClip(node.actionType) != null)
+                return false;
         }
-        else
+        catch (Exception exception)
         {
-            // The shipped desktop-pet build resolves all native Voice and
-            // ActionVoice assets to Chinese. Never let that audio leak into the
-            // independent Japanese channel, even when a Japanese supplement is
-            // not available yet.
-            AudioManager.StopVoice();
+            Plugin.PluginLog.LogWarning($"Could not verify native voice before injection: {exception.Message}");
+            return false;
         }
 
         EnsureNativeVoiceManifestLoaded();
         if (!NativeVoiceFilesByLineId.TryGetValue(node.lineId, out var file) || !File.Exists(file))
-            return japaneseMode;
+            return false;
         try
         {
             var clip = CreateAudioClipFromWav(File.ReadAllBytes(file));
@@ -6438,16 +6182,16 @@ internal static class DialogueManagerUpdatePatch
 
     internal static float ExtendNativeNodeDuration(DialogueNode node, float original)
     {
-        if (node != null && NativeVoiceDurationByNodeId.TryGetValue(node.id, out var voiceDuration))
+        if (!IsJapaneseVoiceMode() && node != null && NativeVoiceDurationByNodeId.TryGetValue(node.id, out var voiceDuration))
             return Math.Max(original, voiceDuration);
         return original;
     }
 
     private static void EnsureNativeVoiceManifestLoaded()
     {
-        var directory = (IsJapaneseVoiceMode()
-            ? Plugin.JapaneseNativeVoicePackDirectory.Value
-            : Plugin.NativeVoicePackDirectory.Value).Trim();
+        if (IsJapaneseVoiceMode())
+            return;
+        var directory = Plugin.NativeVoicePackDirectory.Value.Trim();
         if (string.Equals(_loadedNativeVoicePackDirectory, directory, StringComparison.OrdinalIgnoreCase))
             return;
         NativeVoiceFilesByLineId.Clear();
@@ -7075,15 +6819,6 @@ internal static class GiftExchangeApiKeyHidePatch
     private static void Postfix(GiftExchangeView __instance)
     {
         DialogueManagerUpdatePatch.NotifyGiftExchangeViewHidden(__instance);
-    }
-}
-
-[HarmonyPatch(typeof(ButtonPressedSwapSprite), nameof(ButtonPressedSwapSprite.OnPointerClick))]
-internal static class VoiceSettingsButtonClickPatch
-{
-    private static void Postfix(ButtonPressedSwapSprite __instance)
-    {
-        DialogueManagerUpdatePatch.NotifyVoiceSettingsButtonClicked(__instance);
     }
 }
 
