@@ -110,8 +110,8 @@ internal sealed class InstallerForm : Form
         _core.Checked = true;
         _core.Enabled = false;
         _core.Bounds = new Rectangle(32, 145, 610, 28);
-        _voicePack.Text = L("完整中／日文補充台詞語音（約 301 MB）", "完整中／日文补充台词语音（约 301 MB）", "中国語／日本語の追加台詞音声（約301 MB）", "Complete Chinese/Japanese supplemental dialogue voices (~301 MB)");
-        _voicePack.Checked = true;
+        _voicePack.Text = L("完整中／日文補充台詞語音（約 301 MB，可選；官方配音已覆蓋絕大多數台詞）", "完整中／日文补充台词语音（约 301 MB，可选；官方配音已覆盖绝大多数台词）", "中国語／日本語の追加台詞音声（約301 MB、任意：公式音声がほぼ全台詞をカバー済み）", "Complete Chinese/Japanese supplemental dialogue voices (~301 MB, optional; official voiceovers cover almost every line)");
+        _voicePack.Checked = false;
         _voicePack.Bounds = new Rectangle(32, 180, 610, 28);
         _dynamicVoice.Text = L("AI 動態語音（模型約 1.98 GB；首次會自動建立推理環境）", "AI 动态语音（模型约 1.98 GB；首次会自动建立推理环境）", "AI動的音声（モデル約1.98 GB・初回に推論環境を自動構築）", "Dynamic AI voice (~1.98 GB models; builds its inference environment on first install)");
         _dynamicVoice.Checked = true;
@@ -240,6 +240,8 @@ internal sealed class InstallerForm : Form
 
             DisableBepInExConsole(game);
             EnsureDoorstopRestartCompatibility(game);
+            if (_voicePack.Checked)
+                EnableNativeVoicePackConfig(game);
 
             if (_dynamicVoice.Checked)
             {
@@ -312,6 +314,47 @@ internal sealed class InstallerForm : Form
                 lines[enabledIndex] = "Enabled = false";
             else
                 lines.Insert(sectionIndex + 1, "Enabled = false");
+        }
+
+        File.WriteAllLines(path, lines, new UTF8Encoding(false));
+    }
+
+    private static void EnableNativeVoicePackConfig(string game)
+    {
+        var configDirectory = Path.Combine(game, "BepInEx", "config");
+        Directory.CreateDirectory(configDirectory);
+        var path = Path.Combine(configDirectory, "community.lilith.textinjector.cfg");
+        var lines = File.Exists(path)
+            ? File.ReadAllLines(path).ToList()
+            : new List<string>();
+
+        var sectionIndex = lines.FindIndex(line =>
+            string.Equals(line.Trim(), "[Voice]", StringComparison.OrdinalIgnoreCase));
+        if (sectionIndex < 0)
+        {
+            if (lines.Count > 0 && !string.IsNullOrWhiteSpace(lines[^1])) lines.Add(string.Empty);
+            lines.Add("[Voice]");
+            lines.Add(string.Empty);
+            lines.Add("NativeVoicePackEnabled = true");
+        }
+        else
+        {
+            var nextSection = lines.FindIndex(sectionIndex + 1, line =>
+                line.TrimStart().StartsWith("[", StringComparison.Ordinal));
+            if (nextSection < 0) nextSection = lines.Count;
+            var enabledIndex = -1;
+            for (var index = sectionIndex + 1; index < nextSection; index++)
+            {
+                if (Regex.IsMatch(lines[index], @"^\s*NativeVoicePackEnabled\s*=", RegexOptions.IgnoreCase))
+                {
+                    enabledIndex = index;
+                    break;
+                }
+            }
+            if (enabledIndex >= 0)
+                lines[enabledIndex] = "NativeVoicePackEnabled = true";
+            else
+                lines.Insert(sectionIndex + 1, "NativeVoicePackEnabled = true");
         }
 
         File.WriteAllLines(path, lines, new UTF8Encoding(false));

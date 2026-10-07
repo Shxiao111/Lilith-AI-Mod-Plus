@@ -107,6 +107,9 @@ Lilith-AI-Mod-0.1.1-RC4
 
 If only the EXE is downloaded, the installer retrieves the RC4 manifest and missing packages automatically. The unchanged supplemental voice pack is reused from RC1, while the updated voice runtime is downloaded from the RC4 release. If networking, regional availability, or large-file downloads fail, use the complete Google Drive or Baidu package above.
 
+> 官方已更新中文與日文語音並覆蓋絕大多數台詞，補充語音包改為可選項目，安裝程式預設不勾選；僅在需要為少數仍無官方配音的台詞補音時安裝。
+> The official game now ships Chinese and Japanese voiceovers covering almost every line, so the supplemental voice pack is optional and unchecked by default; install it only to backfill the few lines that still lack official audio.
+
 1. 完整解壓縮或整理好上述資料夾後，再執行安裝程式；它會自動尋找 Steam 遊戲路徑。  
    Extract the complete package or arrange the folders above before running the installer; it automatically searches your Steam libraries.
 2. 開啟遊戲後，在左下角莉莉絲圖示按右鍵，選擇 AI 服務並輸入自己的 API Key。  

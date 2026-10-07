@@ -49,7 +49,7 @@ Updates will not overwrite existing API keys, chat memory, key bindings, or play
 * Core MOD: Windows 10/11 x64, with no additional hardware requirements.
 * AI conversations and speech recognition: Require an internet connection and the player’s own API key.
 * AI dynamic voice generation: An NVIDIA graphics card is recommended, preferably with at least 8 GB of VRAM. If no compatible NVIDIA graphics card is available, the CPU version will be installed instead. At least 16 GB of RAM is recommended, and voice generation will be slower.
-* The complete supplementary voice-line package is approximately 301 MB.
+* The complete supplementary voice-line package is approximately 301 MB. It is optional and unchecked by default: official Chinese and Japanese voiceovers now cover almost every line, so install it only to backfill the few lines that still lack official audio.
 * The dynamic voice model package is approximately 1.98 GB. Additional disk space is required during installation to create the inference environment.
 
 ## Privacy

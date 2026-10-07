@@ -190,8 +190,8 @@ public sealed class Plugin : BasePlugin
             "Pitch multiplier for synthesized speech immediately following an original reaction sound.");
         CollectUnvoicedNativeLines = Config.Bind("Voice", "CollectUnvoicedNativeLines", true,
             "Record fixed native dialogue nodes that have no original voice into a TSV manifest for safe pre-generation.");
-        NativeVoicePackEnabled = Config.Bind("Voice", "NativeVoicePackEnabled", true,
-            "Play supplemental Chinese WAV files only for native dialogue lines that have no original or action voice; Japanese dialogue uses official audio.");
+        NativeVoicePackEnabled = Config.Bind("Voice", "NativeVoicePackEnabled", false,
+            "Play supplemental Chinese WAV files only for native dialogue lines that have no original or action voice; Japanese dialogue uses official audio. Off by default because official Chinese and Japanese voiceovers now cover almost every line; the installer enables this when the optional supplemental voice pack is installed.");
         NativeVoicePackDirectory = Config.Bind("Voice", "NativeVoicePackDirectory",
             Path.Combine(Paths.BepInExRootPath, "data", "LilithTextInjector", "native-voice-pack"),
             "Directory containing the Chinese manifest.tsv and supplemental native dialogue WAV files.");
