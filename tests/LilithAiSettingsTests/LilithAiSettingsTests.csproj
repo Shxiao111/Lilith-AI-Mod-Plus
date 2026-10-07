@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/LilithTextInjector/AiConfiguration.cs" Link="AiConfiguration.cs" />
+    <Compile Include="../../src/LilithTextInjector/AiChatClient.cs" Link="AiChatClient.cs" />
+    <Compile Include="../../src/LilithTextInjector/AiAsrClient.cs" Link="AiAsrClient.cs" />
+    <Compile Include="../../src/LilithTextInjector/AiModelCatalog.cs" Link="AiModelCatalog.cs" />
+  </ItemGroup>
+</Project>

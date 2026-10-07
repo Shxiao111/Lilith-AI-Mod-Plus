@@ -29,10 +29,90 @@ OpenAI 与 DeepSeek 目前仅提供**实验性的文字聊天兼容层**。基�
 2. 安装程序会读取 Steam 与所有 Steam Library，自动寻找游戏。只有无法定位时才需要选择包含 `Lilith.exe` 的文件夹。
 3. 保持需要的组件勾选，点击“安装／更新”。
 4. 首次安装 AI 动态语音时，安装程序会建立独立的推理环境，不会修改玩家电脑已有的 Python。
-5. 启动后右键点击左下角莉莉丝图标，选择“加入 API KEY”及模型服务商，再输入玩家自己的密钥。
+5. 启动后打开游戏设置的“AI”分页，配置提供商连接与模型，并选择聊天和语音识别模型。
 6. 如果勾选 Codex 桥接，Codex 下次启动时可能会要求审核并启用三个莉莉丝 Hooks；安装程序只会合并莉莉丝项目，不会覆盖其他 Hooks。
 
 安装包不包含作者 API Key、聊天记录、玩家姓名、日志、截图、训练数据集或开发电脑路径。更新也不会覆盖已有 API Key、聊天记忆、按键和其他玩家设置。
+
+## 游戏内 AI 配置
+
+打开官方设置左侧的“AI”分页。界面沿用官方分页、字体和控件，分为“当前模型”“提供商与聊天”“语音识别”三个管理子页：
+
+- **当前模型**：分别选择聊天模型、ASR 模型与可选 ASR 回退，并查看本地工具支持状态。
+- **提供商与聊天**：按自定义模型 API 的顺序配置。连接页填写 Provider ID、显示名称、API 地址、API 协议和凭据，下一步进入模型；可获取可用模型后搜索、勾选并添加所选，也可手动添加。模型页填写标识、显示名称、上下文窗口和输出上限。推理、温度、兼容字段和原生搜索在高级参数里。连接名称只用于显示，不决定请求协议。
+- **语音识别**：按与聊天相同的三步配置。连接页填写 Provider ID、显示名称、API 地址和凭据，下一步进入语音模型；模型页选择语音协议并填写标识，HTTP 可填完整接口，实时识别要填 WebSocket 地址。当前使用的模型和 HTTP 回退在“当前模型”里选择。语音连接单独保存地址和凭据，语音协议按模型选择。
+
+所有子页共用一份草稿，点击“保存全部”统一保存，下一次聊天或录音生效；每次操作使用开始时取得的配置与凭据快照。取消、Esc、切换官方分页或关闭设置都会丢弃未保存编辑。录音、转录或 AI 请求处理中不可保存。删除仍被当前聊天、ASR 或回退引用的提供商／模型后，必须重新选择才能保存。
+
+### 协议与地址
+
+聊天协议按提供商选择，一个提供商只有一种。这与 DeepSeek Harness 的自定义模型 API 相同：OpenAI Chat Completions、OpenAI Responses、Anthropic Messages。网关同时提供两种协议时，建成两个提供商。本 MOD 另外保留 Gemini。
+
+| 界面 | 配置协议 | 也接受的写法 | 请求路径（追加到 Base URL） |
+| --- | --- | --- | --- |
+| Chat | `chat-completions` | `openai-completions` | `/chat/completions` |
+| Responses | `responses` | `openai-responses` | `/responses` |
+| Anthropic | `anthropic` | `anthropic-messages` | `/messages` |
+| Gemini | `gemini` |  | `/models/{model}:generateContent` |
+
+别名只在读取时换成第一列的名字。提供商上的协议会写回它的每个聊天模型。
+
+新增提供商要填小写 Provider ID，创建后不能改。显示名称、Base URL、协议、凭据和模型仍可改。要换 ID，新建一个提供商，把当前模型改过去，再删除旧的。已有的 `Gemini`、`Qwen` 这类迁移 ID 可以继续使用。
+
+Base URL 必须包含服务需要的版本路径，例如 `https://your-provider.example/v1`。聊天请求不猜测或补加 `/v1`。模型目录是例外：OpenAI 两种协议请求 `GET {Base URL}/models`；Anthropic 在目录地址缺少 `/v1` 时补上这一段，再请求 `GET {根}/v1/models?limit=1000`。聊天仍使用原来的 Base URL。获取结果只进草稿，保存后才写入磁盘。
+
+模型标识填写服务实际接受的名称，也可以在目录里搜索、勾选后添加所选。上下文窗口只记在模型上，不随请求发送，也不裁剪 32 轮记忆。输出上限、温度和推理参数默认留空，由服务端决定。`reasoningEffort` 写成 `off` 时不发送推理参数。Chat Completions 默认发送 `max_completion_tokens`；网关若拒绝这个字段，把 `maxTokensField` 设为 `max_tokens`。Anthropic Messages 要求显式填写输出上限。
+
+ASR 支持 `gemini-audio`、`qwen-http`、`dashscope-realtime` 和 `audio-transcriptions`。协议写在每条语音模型上，不跟聊天协议。HTTP ASR 可以覆盖完整接口地址；实时 ASR 必须明确填写 WebSocket 地址。没有单独的语音模型目录，模型标识手动填写。聊天和识别各自保存连接与凭据，两边可以使用同一个 ID。实时识别失败只使用当前模型页选好的 HTTP 回退。
+
+本地工具策略可选 `auto`、`on`、`off`：`auto` 在现有权限允许时随实际请求发送工具声明，不发送额外探测请求；只有服务明确拒绝工具参数且尚未执行工具时，才重试一次纯聊天。`on` 被拒绝会报错，`off` 不发送工具。普通文字回复不会被判定为不支持工具，识别状态只保留在当前运行期。该策略不会自动开启“高级电脑操作”。原生联网搜索是独立选项，不等同于本地工具支持；旧 Gemini／千问搜索模式会保留，新连接默认关闭原生搜索。
+
+### 配置文件与凭据
+
+唯一 AI 配置源是游戏目录内的 `BepInEx/config/lilith-ai.json`，可以通过界面或手工编辑。提供商与模型使用稳定 ID，当前模型引用是 `{ "providerId": "...", "modelId": "..." }`，不是拼接字符串。例如，无需认证的本地兼容服务：
+
+```json
+{
+  "version": 1,
+  "providers": {
+    "local": {
+      "name": "本地服务",
+      "baseUrl": "http://localhost:1234/v1",
+      "protocol": "chat-completions",
+      "credential": { "mode": "none" },
+      "chatModels": {
+        "chat": { "model": "your-chat-model", "name": "聊天模型", "protocol": "chat-completions", "tools": "auto" }
+      }
+    }
+  },
+  "asrProviders": {
+    "local": {
+      "name": "本地语音",
+      "baseUrl": "http://localhost:1234/v1",
+      "credential": { "mode": "none" },
+      "models": {
+        "audio": { "model": "your-asr-model", "name": "语音识别", "protocol": "audio-transcriptions" }
+      }
+    }
+  },
+  "chat": { "providerId": "local", "modelId": "chat" },
+  "asr": { "providerId": "local", "modelId": "audio" }
+}
+```
+
+旧的 `lilith-ai.json` 如果还没有 `asrProviders`，下次读取会把提供商里的语音模型拆到 `asrProviders`。本地 Key 会复制到 `asr:` 加上 Provider ID，聊天原来的 Key 不动。没有聊天模型的连接会从聊天列表移到语音识别。这次拆分先留在内存里，要点“保存全部”才写入磁盘。文件里已经有 `asrProviders` 时，不再从旧的 `asrModels` 导入。
+
+凭据支持三种模式：
+
+- `stored`：`reference` 指向独立 `lilith-ai.credentials.json` 中的键名。聊天默认用 Provider ID，语音识别默认用 `asr:` 加上 Provider ID，两边不共用同一条 Key。界面填写的 Key 只存入此文件，不写入主配置；本地文件不是加密保险库，不要公开它。
+- `env`：`reference` 是环境变量名称，例如 `LILITH_API_KEY`。读取游戏进程的环境变量，不执行获取凭据的 Shell 命令。
+- `none`：无需认证，不发送认证凭据。
+
+已保存的 Key 显示为“已配置”，编辑时遮罩；留空不修改，删除须点击明确清除按钮。环境变量缺失、模型引用无效或配置格式错误会报错，不自动换供应商。保存失败时保留原文件和界面草稿。
+
+首次启动且新配置不存在时，一次性备份并迁移旧 `.cfg` 中的供应商、模型、当前选择及凭据：原千问用户保留实时 ASR 与 HTTP 回退，其余用户保留 Gemini ASR。Gemini 与千问会另外写成独立的语音连接，本地 Key 复制到 `asr:Gemini` 和 `asr:Qwen`。旧文件保留供回滚，此后不再覆盖新配置；新配置损坏也不会重新迁移。回滚旧 DLL 时使用对应旧配置备份，不要把凭据文件加入仓库。
+
+该界面不修改游戏配音语言。日文剧情／动作继续使用官方配音，AI 新生成回复仍进入现有中文／日文语音合成管线，中文缺失台词补充不变。
 
 ## 操作
 
