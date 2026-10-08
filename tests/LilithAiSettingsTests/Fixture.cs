@@ -100,15 +100,19 @@ internal static class Tests
         var store = new AiConfigurationStore(dir); var c = Config("http://localhost:12345/v1");
         Check(AiConfigurationStore.IsProviderId("my-gateway", true) && !AiConfigurationStore.IsProviderId("Gemini", true) && AiConfigurationStore.IsProviderId("Gemini", false), "New IDs are lowercase; migrated IDs still load");
         store.Save(c, new()); var saved = store.Read().Config;
-        Check(saved.Providers["local"].Protocol == "chat-completions" && saved.Providers["local"].ChatModels["another"].Protocol == "chat-completions", "One agreed model protocol is promoted");
+        var savedFile = JsonNode.Parse(File.ReadAllText(store.ConfigPath))!;
+        var savedModel = savedFile["providers"]!["local"]!["chatModels"]!["another"]!;
+        Check(saved.Version == 2 && saved.Providers["local"].Protocol == "chat-completions" && savedModel["protocol"] == null && savedModel["maxTokensField"] == null, "Agreed model protocol is promoted onto the provider and not stored again");
         c.Providers["local"].Protocol = "openai-responses"; store.Save(c, new());
-        Check(store.ChatSnapshot().Model.Protocol == "responses" && store.Read().Config.Providers["local"].ChatModels["another"].Protocol == "responses", "Provider protocol overwrites chat models and canonicalizes");
+        Check(store.ChatSnapshot().Model.Protocol == "responses" && store.Read().Config.Providers["local"].Protocol == "responses", "Provider protocol canonicalizes and is copied onto the call snapshot");
         var mixed = store.Read().Config; mixed.Providers["local"].Protocol = ""; mixed.Providers["local"].ChatModels["chat"].Protocol = "gemini"; mixed.Providers["local"].ChatModels["another"].Protocol = "responses";
         Fails<AiConfigurationException>(() => store.Save(mixed, new()));
         var gated = store.Read().Config; gated.Providers["local"].Protocol = "chat-completions"; gated.Providers["local"].MaxTokensField = "max_tokens"; gated.Providers["local"].ChatModels["chat"].ContextWindow = 8192; store.Save(gated, new());
         var round = store.Read().Config.Providers["local"];
-        Check(round.MaxTokensField == "max_tokens" && round.ChatModels["chat"].MaxTokensField == "max_tokens" && round.ChatModels["chat"].ContextWindow == 8192, "Output field and context window round-trip");
-        Check(AiConfigurationStore.AddChatModel(round, "added-model") && !AiConfigurationStore.AddChatModel(round, "added-model") && round.ChatModels["added-model"].Protocol == "chat-completions", "Catalog selection adds one draft model");
+        var call = store.ChatSnapshot();
+        Check(round.MaxTokensField == "max_tokens" && round.ChatModels["chat"].ContextWindow == 8192 && call.Model.MaxTokensField == "max_tokens" && call.Model.Protocol == "chat-completions", "Output field stays on the provider and is copied to the call");
+        var generated = AiConfigurationStore.AllocateProviderId(new[] { "p-taken" });
+        Check(AiConfigurationStore.AddChatModel(round, "added-model") && !AiConfigurationStore.AddChatModel(round, "added-model") && round.Protocol == "chat-completions" && AiConfigurationStore.IsProviderId(generated, true) && generated != "p-taken", "Catalog selection adds one draft model and new ids are generated");
         Check(AiModelCatalog.ListUri("chat-completions", "https://gateway.example/v1").AbsoluteUri == "https://gateway.example/v1/models", "Chat list keeps the version path");
         Check(AiModelCatalog.ListUri("anthropic", "https://gateway.example").AbsoluteUri == "https://gateway.example/v1/models?limit=1000", "Anthropic list adds v1");
         Check(AiModelCatalog.ListUri("anthropic-messages", "https://gateway.example/v1").AbsoluteUri == "https://gateway.example/v1/models?limit=1000", "Anthropic list keeps an existing v1");
@@ -354,6 +358,24 @@ internal static class Tests
 }");
         var existing = kept.Read().Config;
         Check(existing.AsrProviders["local"].Models["audio"].Model == "kept" && existing.AsrProviders["local"].BaseUrl == "http://localhost:9/v1", "Existing asrProviders are not rebuilt from leftover asrModels");
+        var frozenDir = Path.Combine(Path.GetTempPath(), "lilith-split-v2-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(frozenDir);
+        var frozen = new AiConfigurationStore(frozenDir);
+        File.WriteAllText(frozen.ConfigPath, @"{
+  ""version"": 2,
+  ""providers"": {
+    ""local"": {
+      ""name"": ""Local"",
+      ""baseUrl"": ""http://localhost:1234/v1"",
+      ""protocol"": ""chat-completions"",
+      ""credential"": { ""mode"": ""none"" },
+      ""chatModels"": { ""chat"": { ""model"": ""chat-model"", ""tools"": ""auto"" } },
+      ""asrModels"": { ""audio"": { ""model"": ""should-not-return"", ""protocol"": ""audio-transcriptions"" } }
+    }
+  },
+  ""chat"": { ""providerId"": ""local"", ""modelId"": ""chat"" },
+  ""asr"": { ""providerId"": ""local"", ""modelId"": ""audio"" }
+}");
+        Fails<AiConfigurationException>(() => frozen.Read());
         Console.WriteLine("PASS independent speech providers and old-file split");
     }
     public static async Task Main()

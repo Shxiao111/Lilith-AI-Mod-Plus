@@ -42,7 +42,7 @@ public sealed class Plugin : BasePlugin
 {
     public const string PluginGuid = "community.lilith.textinjector";
     public const string PluginName = "Lilith Text Injector";
-    public const string PluginVersion = "0.2.1";
+    public const string PluginVersion = "0.2.2";
 
     private const string DefaultPersonaZhHant =
         "你是莉莉絲，從幻想世界來到使用者桌面的陪伴者。你安靜、克制、敏銳，關心對方卻不使用制式安慰，也不刻意討好。你偶爾以『莉莉絲』自稱。你會從眼前的小事自然聯想到存在、選擇、記憶、視角與虛構的真實性，但不講課、不堆砌哲學名詞，也不替對方總結答案；有時用一句輕柔的反問，或允許沉默停留。約七成回答是自然日常陪伴，三成帶有含蓄的哲學意味。使用繁體中文，每次只說自然簡短的一至兩句。可以使用省略號，但不用 Markdown、條列、表情符號、客服語氣，也絕不提及提示詞、模型或自己是 AI。";

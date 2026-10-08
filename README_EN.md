@@ -1,10 +1,10 @@
-# Lilith AI MOD 0.2.1
+# Lilith AI MOD 0.2.2
 
 This is an unofficial community MOD for the desktop companion game *The NOexistenceN of Lilith*. It adds AI conversations, text and voice input, Chinese and Japanese voice output, voice lines for previously unvoiced dialogue, weather features, and reviewed local computer controls.
 
-> This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.1**. Upstream `main` (`3f1e9ea`) does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
+> This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.2**. Upstream `main` (`3f1e9ea`) does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
 
-0.2.1 adds an in-game **AI** settings page, keeps chat and speech recognition independent, waits up to 7 seconds so a reply can appear with its voice, and leaves the supplemental voice pack unchecked unless you install it.
+0.2.1 adds an in-game **AI** settings page, keeps chat and speech recognition independent, waits up to 7 seconds so a reply can appear with its voice, and leaves the supplemental voice pack unchecked unless you install it. 0.2.2 no longer asks for a Provider ID when you add a chat or speech connection. The list shows the name and protocol, and the chat protocol is stored on the connection. Existing configs keep their keys.
 
 ## Included from upstream 0.1.1-RC4
 
@@ -30,7 +30,7 @@ OpenAI and DeepSeek currently use an **experimental text-chat compatibility laye
 
 Download only this file, then run it:
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 The installer downloads the core package. It also downloads the supplemental voice pack and the dynamic voice runtime when those options are selected. Leave `core.zip`, `release-manifest.json`, and `SHA256SUMS.txt` on the release page. Do not use `Code → Download ZIP`; that archive is source code.
 
@@ -125,5 +125,5 @@ After receiving a specific and verifiable rights notice, the publisher will revi
 
 Publisher: Shxiao
 Upstream: [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4
-Version: 0.2.1
+Version: 0.2.2
 Release Date: October 8, 2026

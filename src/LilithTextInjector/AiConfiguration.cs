@@ -51,10 +51,13 @@ internal sealed class AiChatModel
 {
     public string Model { get; set; } = "";
     public string Name { get; set; } = "";
-    public string Protocol { get; set; } = "chat-completions";
+    // The provider owns the chat protocol. These two fields load old files and ride along on a call snapshot.
+    [JsonIgnore] public string Protocol { get; set; } = "chat-completions";
+    [JsonPropertyName("protocol")] public string? StoredProtocol { get => null; set { if (!string.IsNullOrWhiteSpace(value)) Protocol = value; } }
     public int? ContextWindow { get; set; }
     public int? MaxOutputTokens { get; set; }
-    public string? MaxTokensField { get; set; }
+    [JsonIgnore] public string? MaxTokensField { get; set; }
+    [JsonPropertyName("maxTokensField")] public string? StoredMaxTokensField { get => null; set => MaxTokensField = value; }
     public double? Temperature { get; set; }
     public string? ReasoningEffort { get; set; }
     public int? ThinkingBudget { get; set; }
@@ -110,14 +113,19 @@ internal sealed class AiConfigurationStore
         if (id.Length == 0 || provider.ChatModels.Values.Any(m => m != null && m.Model == id)) return false;
         var key = id; var n = 2;
         while (provider.ChatModels.ContainsKey(key)) key = id + "-" + n++;
-        var protocol = string.IsNullOrWhiteSpace(provider.Protocol) ? "chat-completions" : CanonicalChatProtocol(provider.Protocol);
-        provider.Protocol = protocol;
-        provider.ChatModels[key] = new AiChatModel
-        {
-            Model = id, Name = id, Protocol = protocol,
-            MaxTokensField = protocol == "chat-completions" ? provider.MaxTokensField : null
-        };
+        provider.Protocol = string.IsNullOrWhiteSpace(provider.Protocol) ? "chat-completions" : CanonicalChatProtocol(provider.Protocol);
+        provider.ChatModels[key] = new AiChatModel { Model = id, Name = id };
         return true;
+    }
+    internal static string AllocateProviderId(IEnumerable<string> existing)
+    {
+        var taken = new HashSet<string>(existing, StringComparer.Ordinal);
+        for (var attempt = 0; attempt < 8; attempt++)
+        {
+            var id = "p-" + Guid.NewGuid().ToString("N")[..8];
+            if (taken.Add(id)) return id;
+        }
+        return "p-" + Guid.NewGuid().ToString("N");
     }
     internal static readonly string[] AsrProtocols = { "gemini-audio", "qwen-http", "dashscope-realtime", "audio-transcriptions" };
     // Stored speech keys use their own credential-file entry so a later edit does not change the chat key.
@@ -168,9 +176,19 @@ internal sealed class AiConfigurationStore
     {
         var (c, keys) = Read();
         var p = c.Providers[c.Chat.ProviderId];
-        var model = p.ChatModels[c.Chat.ModelId];
-        if (ChatProtocols.Contains(p.Protocol)) model.Protocol = p.Protocol;
-        return new(c.Chat.ProviderId, c.Chat.ModelId, p.BaseUrl, ResolveKey(p.Credential, keys), model);
+        return new(c.Chat.ProviderId, c.Chat.ModelId, p.BaseUrl, ResolveKey(p.Credential, keys), CallModel(p, p.ChatModels[c.Chat.ModelId]));
+    }
+    internal static AiChatModel CallModel(AiProvider provider, AiChatModel source)
+    {
+        var protocol = CanonicalChatProtocol(string.IsNullOrWhiteSpace(provider.Protocol) ? source.Protocol : provider.Protocol);
+        return new()
+        {
+            Model = source.Model, Name = source.Name, Protocol = protocol,
+            ContextWindow = source.ContextWindow, MaxOutputTokens = source.MaxOutputTokens,
+            MaxTokensField = protocol == "chat-completions" ? provider.MaxTokensField ?? source.MaxTokensField : null,
+            Temperature = source.Temperature, ReasoningEffort = source.ReasoningEffort, ThinkingBudget = source.ThinkingBudget,
+            ThinkingLevel = source.ThinkingLevel, Tools = source.Tools, NativeSearch = source.NativeSearch
+        };
     }
     internal AiRecordingSnapshot RecordingSnapshot()
     {
@@ -204,7 +222,7 @@ internal sealed class AiConfigurationStore
         void Url(string? url, bool ws = false) => Require(Uri.TryCreate(url, UriKind.Absolute, out var u)
             && (ws ? u.Scheme == "ws" || u.Scheme == "wss" : u.Scheme == "http" || u.Scheme == "https")
             && string.IsNullOrEmpty(u.UserInfo) && string.IsNullOrEmpty(u.Query) && string.IsNullOrEmpty(u.Fragment), "Use an absolute HTTP/WS URL without credentials, query or fragment.");
-        Require(c.Version == 1, "Unsupported AI configuration version.");
+        Require(c.Version is 1 or 2, "Unsupported AI configuration version.");
         Require(c.Providers != null && c.Providers.Count > 0, "At least one provider is required.");
         Require(c.AsrProviders != null, "Speech providers are required.");
         foreach (var (id, p) in c.Providers!)
@@ -219,22 +237,22 @@ internal sealed class AiConfigurationStore
             Require(p.Credential != null && new[] { "stored", "env", "none" }.Contains(p.Credential.Mode), "Credential mode must be stored, env or none.");
             Require(p.Credential!.Mode == "none" || !string.IsNullOrWhiteSpace(p.Credential.Reference), "A credential reference is required.");
             Require(p.ChatModels != null, "Provider model catalogs are required.");
+            var protocol = p.Protocol;
             foreach (var (modelId, m) in p.ChatModels!)
             {
                 Require(!string.IsNullOrWhiteSpace(modelId) && m != null && !string.IsNullOrWhiteSpace(m.Model), "Chat model ID is required.");
-                Require(ChatProtocols.Contains(m!.Protocol) && m.Protocol == p.Protocol, "Chat model protocol must match its provider.");
-                Require(m.ContextWindow == null || m.ContextWindow > 0, "Context window must be positive.");
-                Require(new[] { "auto", "on", "off" }.Contains(m.Tools), "Tool policy must be auto, on or off.");
+                Require(m!.ContextWindow == null || m.ContextWindow > 0, "Context window must be positive.");
+                Require(new[] { "auto", "on", "off" }.Contains(m!.Tools), "Tool policy must be auto, on or off.");
                 Require(m.MaxOutputTokens == null || m.MaxOutputTokens > 0, "Output token limit must be positive.");
                 Require(m.Temperature == null || double.IsFinite(m.Temperature.Value) && m.Temperature >= 0, "Temperature must be nonnegative.");
-                Require(m.ReasoningEffort == null || (m.Protocol == "responses" || m.Protocol == "chat-completions") && Token(m.ReasoningEffort), "Reasoning effort requires an OpenAI protocol and a short token.");
-                Require(m.ThinkingBudget == null || (m.Protocol == "anthropic" || m.Protocol == "gemini") && m.ThinkingBudget >= -1, "Thinking budget requires Anthropic or Gemini.");
-                Require(m.ThinkingLevel == null || m.Protocol == "gemini", "Thinking level requires Gemini.");
+                Require(m.ReasoningEffort == null || (protocol == "responses" || protocol == "chat-completions") && Token(m.ReasoningEffort), "Reasoning effort requires an OpenAI protocol and a short token.");
+                Require(m.ThinkingBudget == null || (protocol == "anthropic" || protocol == "gemini") && m.ThinkingBudget >= -1, "Thinking budget requires Anthropic or Gemini.");
+                Require(m.ThinkingLevel == null || protocol == "gemini", "Thinking level requires Gemini.");
                 Require(m.ThinkingBudget == null || m.ThinkingLevel == null, "Choose thinking budget or thinking level, not both.");
-                Require(m.NativeSearch == "none" || m.NativeSearch == "google" && m.Protocol == "gemini"
-                    || m.NativeSearch == "dashscope" && m.Protocol == "responses", "Native search does not match the protocol.");
-                Require(m.Protocol != "anthropic" || m.MaxOutputTokens != null, "Anthropic Messages requires an explicit maxOutputTokens value.");
-                Require(m.Protocol != "anthropic" || m.ThinkingBudget == null || m.ThinkingBudget >= 1024 && m.MaxOutputTokens > m.ThinkingBudget, "Anthropic thinking needs a budget >=1024 and a larger output limit.");
+                Require(m.NativeSearch == "none" || m.NativeSearch == "google" && protocol == "gemini"
+                    || m.NativeSearch == "dashscope" && protocol == "responses", "Native search does not match the protocol.");
+                Require(protocol != "anthropic" || m.MaxOutputTokens != null, "Anthropic Messages requires an explicit maxOutputTokens value.");
+                Require(protocol != "anthropic" || m.ThinkingBudget == null || m.ThinkingBudget >= 1024 && m.MaxOutputTokens > m.ThinkingBudget, "Anthropic thinking needs a budget >=1024 and a larger output limit.");
             }
         }
         foreach (var (id, p) in c.AsrProviders!)
@@ -270,9 +288,10 @@ internal sealed class AiConfigurationStore
             Require(c.AsrProviders[c.AsrFallback.ProviderId].Models[c.AsrFallback.ModelId].Protocol != "dashscope-realtime", "ASR fallback must be an HTTP model.");
         }
     }
-    // A file that already has asrProviders is left alone, even when that object is empty.
+    // Version 2 files are not split again. A version 1 file that already has asrProviders is also left alone.
     private static void SeparateAsrProviders(JsonObject root, Dictionary<string, string> credentials)
     {
+        if (root["version"] is JsonValue version && version.TryGetValue<int>(out var number) && number >= 2) return;
         if (root.ContainsKey("asrProviders")) return;
         if (root["providers"] is not JsonObject providers) return;
         string? Text(JsonNode? node) => node is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
@@ -322,6 +341,7 @@ internal sealed class AiConfigurationStore
         lock (_gate)
         {
             Validate(c);
+            c.Version = 2;
             // Missing credentials may be intentionally cleared, but never silently select another connection.
             Directory.CreateDirectory(Path.GetDirectoryName(ConfigPath)!);
             Recover();
@@ -456,9 +476,14 @@ internal sealed class AiConfigurationStore
         if (p.ChatModels.Count == 0) return;
         if (string.IsNullOrWhiteSpace(p.Protocol))
         {
-            var distinct = p.ChatModels.Values.Where(m => m != null).Select(m => m!.Protocol).Distinct(StringComparer.Ordinal).ToArray();
+            var distinct = p.ChatModels.Values.Where(m => m != null && !string.IsNullOrWhiteSpace(m.Protocol)).Select(m => m!.Protocol).Distinct(StringComparer.Ordinal).ToArray();
             if (distinct.Length == 1) p.Protocol = distinct[0];
-            return;
+        }
+        if (p.Protocol is "responses" or "anthropic" or "gemini") p.MaxTokensField = null;
+        else if (p.MaxTokensField == null)
+        {
+            var fields = p.ChatModels.Values.Where(m => !string.IsNullOrWhiteSpace(m?.MaxTokensField)).Select(m => m!.MaxTokensField).Distinct(StringComparer.Ordinal).ToArray();
+            if (fields.Length == 1) p.MaxTokensField = fields[0];
         }
         if (!ChatProtocols.Contains(p.Protocol)) return;
         foreach (var m in p.ChatModels.Values)

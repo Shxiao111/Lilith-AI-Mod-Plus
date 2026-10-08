@@ -1,8 +1,8 @@
-# 莉莉丝 AI MOD 0.2.1
+# 莉莉丝 AI MOD 0.2.2
 
 这是《The NOexistenceN of Lilith》桌宠的非官方社区 MOD，加入 AI 对话、文字与语音输入、中日文语音、无配音台词补音、天气查询和受限制的本机电脑操作。
 
-> **本仓库是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的个人维护分支。可安装版本是 0.2.1。**
+> **本仓库是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的个人维护分支。可安装版本是 0.2.2。**
 > 上游 `main`（`3f1e9ea`）对着当前游戏无法独立编译；本分支可以。
 > 本分支沿用上游条款，不另授许可。补充台词语音包和动态语音运行时仍从原作者的 Release 下载，本仓库不重新发布这些语音内容。
 > 差异清单见下方「相对上游的改动」。
@@ -18,6 +18,7 @@
 7. **安装器与语音运行时可靠性**：改进安装恢复流程，安装前校验语音运行时就绪状态。
 8. **新增 4 个测试项目**：`LilithAiSettingsTests`、`LilithAiSettingsUiTests`、`LilithNativeVoiceCompatibilityTests`、`LilithVoicePolicyTests`（上游仓库没有 `tests/` 目录）。
 9. **补充语音包改为可选项**：官方中／日文配音已覆盖绝大多数台词，安装器的「完整中／日文补充台词语音」复选框默认不勾选；勾选安装时，安装器会把 `BepInEx/config/community.lilith.textinjector.cfg` 的 `NativeVoicePackEnabled` 自动写为 `true`，插件端默认值改为 `false`，未安装语音包的玩家不会再走补充语音分支。
+10. **0.2.2 连接不再手填 Provider ID**：新建聊天或语音连接由程序生成内部 ID，列表显示名称和协议；聊天协议保存在连接上。已有配置不用重新填写密钥。
 
 ### 同步上游
 
@@ -54,7 +55,7 @@ OpenAI 与 DeepSeek 目前仅提供**实验性的文字聊天兼容层**。基�
 
 只下载这一个文件，然后双击运行：
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 安装器会自己下载核心包。补充台词语音和动态语音也由安装器下载，不用自己去找。发布页上的 `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用仓库页面的 `Code → Download ZIP`，那是源码。
 
@@ -198,5 +199,5 @@ ASR 支持 `gemini-audio`、`qwen-http`、`dashscope-realtime` 和 `audio-transc
 
 发布者：Shxiao
 上游项目：[mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4
-版本：0.2.1
+版本：0.2.2
 发布日期：2026/10/08

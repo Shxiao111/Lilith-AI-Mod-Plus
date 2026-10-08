@@ -41,7 +41,6 @@ internal static class AiSettingsPanel
     private static bool _open;
     private static bool _formNew;
     private static string _formReturn = "providers";
-    private static string _newProviderId = "";
     private static string _newProviderName = "";
     private static string _newBaseUrl = "";
     private static string _newProtocol = "chat-completions";
@@ -177,7 +176,7 @@ internal static class AiSettingsPanel
         UnityEngine.Object.Destroy(_pageRoot); _pageRoot = null;
         _draft = null; _pick = null; _open = false; InvalidInputs.Clear();
         _catalogCts?.Cancel(); _catalogTask = null; _catalogIds = null; _catalogError = ""; _catalogQuery = ""; CatalogPicked.Clear();
-        _formNew = false; _formReturn = "providers"; _newProviderId = ""; _newProviderName = ""; _newBaseUrl = ""; _newKey = ""; _newEnvName = "";
+        _formNew = false; _formReturn = "providers"; _newProviderName = ""; _newBaseUrl = ""; _newKey = ""; _newEnvName = "";
         if (_view != null)
         {
             _view._settingItemRoot.gameObject.SetActive(_nativeRootActive);
@@ -221,7 +220,7 @@ internal static class AiSettingsPanel
     private static void CancelNewProvider()
     {
         var back = _formReturn == "asr" ? "asr" : "providers";
-        _formNew = false; _formReturn = "providers"; _newProviderId = ""; _newProviderName = ""; _newBaseUrl = ""; _newKey = ""; _newEnvName = "";
+        _formNew = false; _formReturn = "providers"; _newProviderName = ""; _newBaseUrl = ""; _newKey = ""; _newEnvName = "";
         _newProtocol = "chat-completions"; _newCredentialMode = "stored"; _error = "";
         Navigate(back);
     }
@@ -318,62 +317,89 @@ internal static class AiSettingsPanel
         "unsupported" => T("不支援", "不支持", "非対応", "Unsupported"),
         _ => T("尚未確認", "尚未确认", "未確認", "Unknown")
     };
-    // Chat setup follows the custom model API card: connection, then models, then one model.
-    // Eight content rows fit above the status line, so each step stays on one screen.
-    private static void Providers()
+    // Chat and speech share one connection editor. Eight content rows fit above the status line.
+    private static void Providers() => ConnectionList(false);
+    private static void AsrProviders() => ConnectionList(true);
+    private static void ConnectionList(bool speech)
     {
-        RowButton(T("新增自訂模型 API", "添加自定义模型 API", "カスタムモデル API を追加", "Add custom model API"), BeginNewProvider);
+        if (speech) RowButton(T("新增語音模型 API", "添加语音模型 API", "音声モデル API を追加", "Add speech model API"), () => BeginNew(true));
+        else RowButton(T("新增自訂模型 API", "添加自定义模型 API", "カスタムモデル API を追加", "Add custom model API"), () => BeginNew(false));
+        if (speech)
+        {
+            foreach (var entry in Slice(C.AsrProviders.ToArray()))
+            {
+                var protocols = entry.Value.Models.Values.Select(m => m.Protocol).Where(p => !string.IsNullOrWhiteSpace(p)).Distinct(StringComparer.Ordinal).ToArray();
+                var suffix = protocols.Length == 1 ? " · " + AsrProtocolLabel(protocols[0]) : protocols.Length > 1 ? T(" · 多種", " · 多种", " · 複数", " · mixed") : "";
+                var id = entry.Key;
+                RowButton(entry.Value.Name + suffix, () => { _formNew = false; _formReturn = "asr"; _providerId = id; Navigate("asr-form"); });
+            }
+            Pagination(C.AsrProviders.Count);
+            return;
+        }
         foreach (var entry in Slice(C.Providers.ToArray()))
         {
             var id = entry.Key;
             var protocol = string.IsNullOrWhiteSpace(entry.Value.Protocol) ? "" : " · " + ProtocolLabel(entry.Value.Protocol);
-            RowButton(entry.Value.Name + " · " + id + protocol, () => { _formNew = false; _formReturn = "providers"; _providerId = id; Navigate("form"); });
+            RowButton(entry.Value.Name + protocol, () => { _formNew = false; _formReturn = "providers"; _providerId = id; Navigate("form"); });
         }
         Pagination(C.Providers.Count);
     }
-    private static void BeginNewProvider()
+    private static void BeginNew(bool speech)
     {
-        _formNew = true; _formReturn = "providers"; _newProviderId = ""; _newProviderName = ""; _newBaseUrl = "";
-        _newProtocol = "chat-completions"; _newCredentialMode = "stored"; _newEnvName = ""; _newKey = "";
-        Navigate("form");
+        _formNew = true; _formReturn = speech ? "asr" : "providers"; _newProviderName = ""; _newBaseUrl = "";
+        _newProtocol = speech ? "" : "chat-completions"; _newCredentialMode = "stored"; _newEnvName = ""; _newKey = "";
+        Navigate(speech ? "asr-form" : "form");
     }
-    private static void Form()
+    private static void Form() => ConnectionForm(false);
+    private static void AsrForm() => ConnectionForm(true);
+    private static void ConnectionForm(bool speech)
     {
+        var note = speech
+            ? T("位址與憑據只屬於語音識別。語音協定在模型上選擇。", "地址和凭据只属于语音识别。语音协议在模型上选择。", "アドレスと認証は音声認識専用です。音声プロトコルはモデルで選びます。", "Address and credential belong only to speech recognition. Choose the speech protocol on the model.")
+            : T("一個提供商只用一種聊天協定。", "一个提供商只用一种聊天协议。", "接続ごとにプロトコルは一つです。", "A provider uses one chat protocol.");
         if (_formNew)
         {
-            InputRow("Provider ID", _newProviderId, v => _newProviderId = v, false, "my-gateway");
             InputRow(T("顯示名稱", "显示名称", "表示名", "Display name"), _newProviderName, v => _newProviderName = v);
             InputRow(T("API 位址", "API 地址", "API アドレス", "API address"), _newBaseUrl, v => _newBaseUrl = v, false, "https://example.com/v1");
-            RowButton(ProtocolButton(_newProtocol), OpenProtocol);
+            if (!speech) RowButton(ProtocolButton(_newProtocol), OpenProtocol);
             CredentialOptions(_newCredentialMode, v => { _newCredentialMode = v; Render(); });
             if (_newCredentialMode == "stored") InputRow("API Key", _newKey, v => _newKey = v, true);
             else if (_newCredentialMode == "env") InputRow(T("環境變數名稱", "环境变量名称", "環境変数名", "Environment name"), _newEnvName, v => _newEnvName = v);
-            RowLabel(T("ID 建立後不可改。一個提供商只用一種聊天協定。", "ID 创建后不可改。一个提供商只用一种聊天协议。", "IDは作成後に変更できません。接続ごとにプロトコルは一つです。", "The ID is permanent. A provider uses one chat protocol."));
+            RowLabel(note);
             RowButtons(T("返回", "返回", "戻る", "Back"), CancelNewProvider, T("下一步：模型", "下一步：模型", "次へ：モデル", "Next: models"), ContinueToModels);
             return;
         }
-        var customRef = IsCustomCredential(P.Credential, _providerId);
-        var showClear = P.Credential.Mode == "stored" && HasStoredKey(P.Credential, _providerId);
-        if (!customRef) RowLabel("Provider ID · " + _providerId + (showClear ? T("（不可改）", "（不可改）", "（変更不可）", " (permanent)") : ""));
-        InputRow(T("顯示名稱", "显示名称", "表示名", "Display name"), P.Name, v => P.Name = v);
-        InputRow(T("API 位址", "API 地址", "API アドレス", "API address"), P.BaseUrl, v => P.BaseUrl = v, false, "https://example.com/v1");
-        RowButton(ProtocolButton(P.Protocol), OpenProtocol);
-        CredentialOptions(P.Credential.Mode, v =>
+        var credential = speech ? A.Credential : P.Credential;
+        var defaultRef = speech ? AiConfigurationStore.AsrCredentialReference(_providerId) : _providerId;
+        var customRef = IsCustomCredential(credential, defaultRef);
+        var showClear = credential.Mode == "stored" && HasStoredKey(credential, defaultRef);
+        if (speech)
         {
-            P.Credential.Mode = v;
-            if (v != "none" && string.IsNullOrWhiteSpace(P.Credential.Reference)) P.Credential.Reference = _providerId;
+            InputRow(T("顯示名稱", "显示名称", "表示名", "Display name"), A.Name, v => A.Name = v);
+            InputRow(T("API 位址", "API 地址", "API アドレス", "API address"), A.BaseUrl, v => A.BaseUrl = v, false, "https://example.com/v1");
+        }
+        else
+        {
+            InputRow(T("顯示名稱", "显示名称", "表示名", "Display name"), P.Name, v => P.Name = v);
+            InputRow(T("API 位址", "API 地址", "API アドレス", "API address"), P.BaseUrl, v => P.BaseUrl = v, false, "https://example.com/v1");
+            RowButton(ProtocolButton(P.Protocol), OpenProtocol);
+        }
+        CredentialOptions(credential.Mode, v =>
+        {
+            credential.Mode = v;
+            if (v != "none" && string.IsNullOrWhiteSpace(credential.Reference)) credential.Reference = defaultRef;
             Render();
         });
-        if (P.Credential.Mode == "env") InputRow(T("環境變數名稱", "环境变量名称", "環境変数名", "Environment name"), P.Credential.Reference ?? "", v => P.Credential.Reference = v);
-        else if (P.Credential.Mode == "stored")
+        if (credential.Mode == "env") InputRow(T("環境變數名稱", "环境变量名称", "環境変数名", "Environment name"), credential.Reference ?? "", v => credential.Reference = v);
+        else if (credential.Mode == "stored")
         {
-            if (customRef) InputRow(T("憑據 ID", "凭据 ID", "Credential ID", "Credential ID"), P.Credential.Reference ?? "", v => P.Credential.Reference = v);
-            var configured = HasStoredKey(P.Credential, _providerId);
-            InputRow("API Key", "", v => { if (!string.IsNullOrWhiteSpace(v)) _draft!.Credentials[CredentialReference(P.Credential, _providerId)] = v.Trim(); }, true,
+            if (customRef) InputRow(T("憑據 ID", "凭据 ID", "Credential ID", "Credential ID"), credential.Reference ?? "", v => credential.Reference = v);
+            var configured = HasStoredKey(credential, defaultRef);
+            InputRow("API Key", "", v => { if (!string.IsNullOrWhiteSpace(v)) _draft!.Credentials[CredentialReference(credential, defaultRef)] = v.Trim(); }, true,
                 configured ? T("已配置；留空不修改", "已配置；留空不修改", "設定済み・空欄で維持", "Configured; blank preserves key") : T("未配置", "未配置", "未設定", "Not configured"));
-            if (showClear) RowButton(T("明確清除已存 Key", "明确清除已存 Key", "保存キーを削除", "Clear stored key"), () => ClearStoredKey(P.Credential, _providerId));
+            if (showClear) RowButton(T("明確清除已存 Key", "明确清除已存 Key", "保存キーを削除", "Clear stored key"), () => ClearStoredKey(credential, defaultRef));
         }
-        if (!showClear) RowLabel(T("ID 建立後不可改。一個提供商只用一種聊天協定。", "ID 创建后不可改。一个提供商只用一种聊天协议。", "IDは作成後に変更できません。接続ごとにプロトコルは一つです。", "The ID is permanent. A provider uses one chat protocol."));
+        RowLabel(note);
         RowButtons(T("刪除提供商", "删除提供商", "接続を削除", "Delete provider"), DeleteProvider, T("下一步：模型", "下一步：模型", "次へ：モデル", "Next: models"), ContinueToModels);
     }
     private static string ProtocolLabel(string protocol) => AiConfigurationStore.CanonicalChatProtocol(protocol) switch
@@ -418,8 +444,7 @@ internal static class AiSettingsPanel
         if (protocol != "chat-completions") P.MaxTokensField = null;
         foreach (var model in P.ChatModels.Values)
         {
-            model.Protocol = protocol; model.ReasoningEffort = null; model.ThinkingBudget = null; model.ThinkingLevel = null; model.NativeSearch = "none";
-            model.MaxTokensField = protocol == "chat-completions" ? P.MaxTokensField : null;
+            model.ReasoningEffort = null; model.ThinkingBudget = null; model.ThinkingLevel = null; model.NativeSearch = "none";
         }
         _error = InvalidInputs.Count > 0 ? NumericError() : "";
     }
@@ -448,34 +473,29 @@ internal static class AiSettingsPanel
     private static bool NewFormPending()
     {
         var protocolPending = _formReturn == "asr" ? _newProtocol.Length > 0 : _newProtocol != "chat-completions";
-        return _newProviderId.Length > 0 || _newProviderName.Length > 0 || _newBaseUrl.Length > 0 || _newKey.Length > 0 || _newEnvName.Length > 0 || protocolPending || _newCredentialMode != "stored";
+        return _newProviderName.Length > 0 || _newBaseUrl.Length > 0 || _newKey.Length > 0 || _newEnvName.Length > 0 || protocolPending || _newCredentialMode != "stored";
     }
     private static bool TryCommitNewProvider()
     {
         if (!_formNew) return true;
-        var id = _newProviderId.Trim();
         var name = _newProviderName.Trim();
-        if (!AiConfigurationStore.IsProviderId(id, true))
-            _error = T("ID 須為小寫字母開頭，只能含小寫、數字和連字號。", "ID 须为小写字母开头，只能含小写、数字和连字符。", "IDは小文字で始め、小文字・数字・ハイフンのみです。", "Provider ID must be lowercase and use letters, digits, and hyphens.");
-        else if (name.Length == 0)
-            _error = T("請填寫顯示名稱。", "请填写显示名称。", "表示名を入力してください。", "Enter a display name.");
-        else if (_formReturn == "asr" ? C.AsrProviders.ContainsKey(id) : C.Providers.ContainsKey(id))
-            _error = T("這個 Provider ID 已存在。", "这个 Provider ID 已存在。", "この Provider ID は既にあります。", "That Provider ID already exists.");
-        else
+        if (name.Length == 0)
         {
-            var speech = _formReturn == "asr";
-            var mode = _newCredentialMode;
-            var storedReference = speech ? AiConfigurationStore.AsrCredentialReference(id) : id;
-            string? reference = mode == "stored" ? storedReference : mode == "env" && !string.IsNullOrWhiteSpace(_newEnvName) ? _newEnvName.Trim() : null;
-            var credential = new AiCredential { Mode = mode, Reference = reference };
-            if (speech) C.AsrProviders[id] = new AiAsrProvider { Name = name, BaseUrl = _newBaseUrl.Trim(), Credential = credential };
-            else C.Providers[id] = new AiProvider { Name = name, BaseUrl = _newBaseUrl.Trim(), Protocol = _newProtocol, Credential = credential };
-            if (mode == "stored" && !string.IsNullOrWhiteSpace(_newKey)) _draft!.Credentials[storedReference] = _newKey.Trim();
-            _providerId = id; _formNew = false; _newProviderId = ""; _newProviderName = ""; _newBaseUrl = ""; _newKey = ""; _newEnvName = "";
-            _newProtocol = "chat-completions"; _newCredentialMode = "stored"; _error = "";
-            return true;
+            _error = T("請填寫顯示名稱。", "请填写显示名称。", "表示名を入力してください。", "Enter a display name.");
+            return false;
         }
-        return false;
+        var speech = _formReturn == "asr";
+        var id = AiConfigurationStore.AllocateProviderId(speech ? C.AsrProviders.Keys : C.Providers.Keys);
+        var mode = _newCredentialMode;
+        var storedReference = speech ? AiConfigurationStore.AsrCredentialReference(id) : id;
+        string? reference = mode == "stored" ? storedReference : mode == "env" && !string.IsNullOrWhiteSpace(_newEnvName) ? _newEnvName.Trim() : null;
+        var credential = new AiCredential { Mode = mode, Reference = reference };
+        if (speech) C.AsrProviders[id] = new AiAsrProvider { Name = name, BaseUrl = _newBaseUrl.Trim(), Credential = credential };
+        else C.Providers[id] = new AiProvider { Name = name, BaseUrl = _newBaseUrl.Trim(), Protocol = _newProtocol, Credential = credential };
+        if (mode == "stored" && !string.IsNullOrWhiteSpace(_newKey)) _draft!.Credentials[storedReference] = _newKey.Trim();
+        _providerId = id; _formNew = false; _newProviderName = ""; _newBaseUrl = ""; _newKey = ""; _newEnvName = "";
+        _newProtocol = "chat-completions"; _newCredentialMode = "stored"; _error = "";
+        return true;
     }
     private static void ContinueToModels()
     {
@@ -483,12 +503,12 @@ internal static class AiSettingsPanel
         {
             if (!TryCommitNewProvider()) { if (_status != null) _status.text = _error; return; }
         }
-        else if (string.IsNullOrWhiteSpace(P.Protocol))
+        else if (_formReturn != "asr" && string.IsNullOrWhiteSpace(P.Protocol))
         {
             _error = T("請選擇 API 協定。", "请选择 API 协议。", "API プロトコルを選択してください。", "Select an API protocol.");
             if (_status != null) _status.text = _error; return;
         }
-        Navigate("models");
+        Navigate(_formReturn == "asr" ? "asrs" : "models");
     }
     private static void BeginCatalog()
     {
@@ -568,7 +588,7 @@ internal static class AiSettingsPanel
         var protocol = AiConfigurationStore.CanonicalChatProtocol(P.Protocol);
         P.Protocol = protocol;
         _modelId = "model-" + Guid.NewGuid().ToString("N")[..8];
-        P.ChatModels[_modelId] = new AiChatModel { Protocol = protocol, MaxTokensField = protocol == "chat-completions" ? P.MaxTokensField : null };
+        P.ChatModels[_modelId] = new AiChatModel();
         _modelReturn = "models";
         Navigate("model");
     }
@@ -588,83 +608,17 @@ internal static class AiSettingsPanel
     private static void Advanced()
     {
         var m = P.ChatModels[_modelId];
-        if (m.Protocol == "chat-completions") Options(T("上限欄位", "上限字段", "上限フィールド", "Output field"), new[] { "max_completion_tokens", "max_tokens" }, P.MaxTokensField ?? "max_completion_tokens", v =>
-        {
-            P.MaxTokensField = v == "max_completion_tokens" ? null : v;
-            foreach (var model in P.ChatModels.Values) model.MaxTokensField = P.MaxTokensField;
-        }, new[] { "completion", "max_tokens" });
+        var protocol = P.Protocol;
+        if (protocol == "chat-completions") Options(T("上限欄位", "上限字段", "上限フィールド", "Output field"), new[] { "max_completion_tokens", "max_tokens" }, P.MaxTokensField ?? "max_completion_tokens", v => P.MaxTokensField = v == "max_completion_tokens" ? null : v, new[] { "completion", "max_tokens" });
         InputRow(T("溫度（可選）", "温度（可选）", "温度（任意）", "Temperature (optional)"), m.Temperature?.ToString(CultureInfo.InvariantCulture) ?? "", v => m.Temperature = string.IsNullOrWhiteSpace(v) ? null : double.Parse(v, CultureInfo.InvariantCulture));
-        if (m.Protocol == "responses" || m.Protocol == "chat-completions") InputRow("Reasoning effort", m.ReasoningEffort ?? "", v => m.ReasoningEffort = Blank(v), false, "off, low, medium, high, max");
-        if (m.Protocol == "anthropic" || m.Protocol == "gemini") InputRow("Thinking budget", m.ThinkingBudget?.ToString(CultureInfo.InvariantCulture) ?? "", v => m.ThinkingBudget = OptionalInt(v));
-        if (m.Protocol == "gemini") InputRow("Thinking level", m.ThinkingLevel ?? "", v => m.ThinkingLevel = Blank(v));
-        if (m.Protocol == "gemini" || m.Protocol == "responses") Switch(T("原生联网搜尋", "原生联网搜索", "ネイティブ検索", "Native web search"), m.NativeSearch != "none", v => m.NativeSearch = v ? m.Protocol == "gemini" ? "google" : "dashscope" : "none");
+        if (protocol == "responses" || protocol == "chat-completions") InputRow("Reasoning effort", m.ReasoningEffort ?? "", v => m.ReasoningEffort = Blank(v), false, "off, low, medium, high, max");
+        if (protocol == "anthropic" || protocol == "gemini") InputRow("Thinking budget", m.ThinkingBudget?.ToString(CultureInfo.InvariantCulture) ?? "", v => m.ThinkingBudget = OptionalInt(v));
+        if (protocol == "gemini") InputRow("Thinking level", m.ThinkingLevel ?? "", v => m.ThinkingLevel = Blank(v));
+        if (protocol == "gemini" || protocol == "responses") Switch(T("原生联网搜尋", "原生联网搜索", "ネイティブ検索", "Native web search"), m.NativeSearch != "none", v => m.NativeSearch = v ? protocol == "gemini" ? "google" : "dashscope" : "none");
         RowButton(T("返回模型", "返回模型", "モデルへ戻る", "Back to model"), () => Navigate("model"));
     }
     private static string? Blank(string v) => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
     private static int? OptionalInt(string v) => string.IsNullOrWhiteSpace(v) ? null : int.Parse(v, CultureInfo.InvariantCulture);
-    // Speech setup uses the same three steps as chat, against its own provider list. The speech protocol stays on each model.
-    private static void AsrProviders()
-    {
-        RowButton(T("新增語音模型 API", "添加语音模型 API", "音声モデル API を追加", "Add speech model API"), BeginNewAsrProvider);
-        foreach (var entry in Slice(C.AsrProviders.ToArray()))
-        {
-            var id = entry.Key;
-            var protocols = entry.Value.Models.Values.Select(m => m.Protocol).Where(p => !string.IsNullOrWhiteSpace(p)).Distinct(StringComparer.Ordinal).ToArray();
-            var suffix = protocols.Length == 1 ? " · " + AsrProtocolLabel(protocols[0]) : protocols.Length > 1 ? T(" · 多種", " · 多种", " · 複数", " · mixed") : "";
-            RowButton(entry.Value.Name + " · " + id + suffix, () => { _formNew = false; _formReturn = "asr"; _providerId = id; Navigate("asr-form"); });
-        }
-        Pagination(C.AsrProviders.Count);
-    }
-    private static void BeginNewAsrProvider()
-    {
-        _formNew = true; _formReturn = "asr"; _newProviderId = ""; _newProviderName = ""; _newBaseUrl = "";
-        _newProtocol = ""; _newCredentialMode = "stored"; _newEnvName = ""; _newKey = "";
-        Navigate("asr-form");
-    }
-    private static void AsrForm()
-    {
-        var note = T("位址與憑據只屬於語音識別。語音協定在模型上選擇。", "地址和凭据只属于语音识别。语音协议在模型上选择。", "アドレスと認証は音声認識専用です。音声プロトコルはモデルで選びます。", "Address and credential belong only to speech recognition. Choose the speech protocol on the model.");
-        if (_formNew)
-        {
-            InputRow("Provider ID", _newProviderId, v => _newProviderId = v, false, "my-gateway");
-            InputRow(T("顯示名稱", "显示名称", "表示名", "Display name"), _newProviderName, v => _newProviderName = v);
-            InputRow(T("API 位址", "API 地址", "API アドレス", "API address"), _newBaseUrl, v => _newBaseUrl = v, false, "https://example.com/v1");
-            CredentialOptions(_newCredentialMode, v => { _newCredentialMode = v; Render(); });
-            if (_newCredentialMode == "stored") InputRow("API Key", _newKey, v => _newKey = v, true);
-            else if (_newCredentialMode == "env") InputRow(T("環境變數名稱", "环境变量名称", "環境変数名", "Environment name"), _newEnvName, v => _newEnvName = v);
-            RowLabel(T("ID 建立後不可改。位址與憑據只屬於語音識別。", "ID 创建后不可改。地址和凭据只属于语音识别。", "IDは作成後に変更できません。アドレスと認証は音声認識専用です。", "The ID is permanent. Address and credential belong only to speech recognition."));
-            RowButtons(T("返回", "返回", "戻る", "Back"), CancelNewProvider, T("下一步：模型", "下一步：模型", "次へ：モデル", "Next: models"), ContinueToAsrModels);
-            return;
-        }
-        var speechRef = AiConfigurationStore.AsrCredentialReference(_providerId);
-        var customRef = IsCustomCredential(A.Credential, speechRef);
-        var showClear = A.Credential.Mode == "stored" && HasStoredKey(A.Credential, speechRef);
-        if (!customRef) RowLabel("Provider ID · " + _providerId + (showClear ? T("（不可改）", "（不可改）", "（変更不可）", " (permanent)") : ""));
-        InputRow(T("顯示名稱", "显示名称", "表示名", "Display name"), A.Name, v => A.Name = v);
-        InputRow(T("API 位址", "API 地址", "API アドレス", "API address"), A.BaseUrl, v => A.BaseUrl = v, false, "https://example.com/v1");
-        CredentialOptions(A.Credential.Mode, v =>
-        {
-            A.Credential.Mode = v;
-            if (v != "none" && string.IsNullOrWhiteSpace(A.Credential.Reference)) A.Credential.Reference = speechRef;
-            Render();
-        });
-        if (A.Credential.Mode == "env") InputRow(T("環境變數名稱", "环境变量名称", "環境変数名", "Environment name"), A.Credential.Reference ?? "", v => A.Credential.Reference = v);
-        else if (A.Credential.Mode == "stored")
-        {
-            if (customRef) InputRow(T("憑據 ID", "凭据 ID", "Credential ID", "Credential ID"), A.Credential.Reference ?? "", v => A.Credential.Reference = v);
-            var configured = HasStoredKey(A.Credential, speechRef);
-            InputRow("API Key", "", v => { if (!string.IsNullOrWhiteSpace(v)) _draft!.Credentials[CredentialReference(A.Credential, speechRef)] = v.Trim(); }, true,
-                configured ? T("已配置；留空不修改", "已配置；留空不修改", "設定済み・空欄で維持", "Configured; blank preserves key") : T("未配置", "未配置", "未設定", "Not configured"));
-            if (showClear) RowButton(T("明確清除已存 Key", "明确清除已存 Key", "保存キーを削除", "Clear stored key"), () => ClearStoredKey(A.Credential, speechRef));
-        }
-        RowLabel(note);
-        RowButtons(T("刪除提供商", "删除提供商", "接続を削除", "Delete provider"), DeleteProvider, T("下一步：模型", "下一步：模型", "次へ：モデル", "Next: models"), ContinueToAsrModels);
-    }
-    private static void ContinueToAsrModels()
-    {
-        if (_formNew && !TryCommitNewProvider()) { if (_status != null) _status.text = _error; return; }
-        Navigate("asrs");
-    }
     private static void AsrModels()
     {
         RowButtons(T("返回連接", "返回连接", "接続へ戻る", "Back to connection"), () => Navigate("asr-form"), T("手動新增", "手动添加", "手入力で追加", "Add manually"), AddAsrModelManually);
