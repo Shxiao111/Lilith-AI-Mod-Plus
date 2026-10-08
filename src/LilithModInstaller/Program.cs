@@ -256,7 +256,7 @@ internal sealed class InstallerForm : Form
             Directory.CreateDirectory(manifestDirectory);
             File.WriteAllText(Path.Combine(manifestDirectory, "installed-files.json"), JsonSerializer.Serialize(installed, JsonOptions(true)), new UTF8Encoding(false));
             _progress.Value = 100;
-            SetStatus(L("安裝完成。API Key 請在左下角莉莉絲選單中由玩家自行輸入。", "安装完成。API Key 请在左下角莉莉丝菜单中由玩家自行输入。", "インストール完了。APIキーは左下のリリスメニューから入力してください。", "Installation complete. Enter your own API key from Lilith's lower-left tray menu."));
+            SetStatus(L("安裝完成。請打開遊戲設定的「AI」分頁，填寫自己的 API Key。", "安装完成。请打开游戏设置的「AI」分页，填写自己的 API Key。", "インストール完了。ゲーム設定の「AI」ページを開き、自分の API キーを入力してください。", "Installation complete. Open the AI page in Settings and enter your own API key."));
             if (_launch.Checked)
                 Process.Start(new ProcessStartInfo(Path.Combine(game, "Lilith.exe")) { WorkingDirectory = game, UseShellExecute = true });
         }

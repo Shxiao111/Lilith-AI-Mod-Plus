@@ -32,7 +32,9 @@ OpenAI and DeepSeek currently use an **experimental text-chat compatibility laye
 2. The installer will automatically locate the game using Steam registry information and all Steam Library folders. If the game cannot be found, click **Browse** and select the folder containing `Lilith.exe`.
 3. Keep the required components selected, then click **Install / Update**.
 4. The first installation of AI dynamic voice generation will download a separate inference environment. This may take several minutes. It will not use or modify any Python installation already present on the player’s computer.
-5. After launching the game, open the **AI** page in Settings and configure the chat and speech-recognition providers. F6 and F7 remain on the Controls page. The installer has no Codex-bridge checkbox.
+5. After launching the game, open the **AI** page in Settings and configure the chat and speech-recognition providers. F6 and F7 remain on the Controls page.
+
+The official RC4 installer has an optional Codex work-status bridge. This fork's installer is built from the public source and does not include that checkbox. Hooks already added by the official installer stay in place. Updating or uninstalling with this fork does not change them. The game still reads events that are already being written.
 
 The installer does not include the author’s API key, chat history, player name, logs, screenshots, training datasets, or development computer paths.
 

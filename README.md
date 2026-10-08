@@ -34,6 +34,7 @@ This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.
 - 适配当前游戏的设置界面 / The settings UI matches the current game build.
 - 补充台词语音默认不安装；只有勾选安装时才会打开补充语音 / The supplemental voice pack is off unless you choose to install it.
 - 文字会等语音就绪后再出现，最多等 7 秒；F7 输入框可查看最近对话 / Replies wait for the generated voice for up to 7 seconds, and the F7 field can show recent turns.
+- 官方 RC4 安装包里的「Codex 工作状态桥接」勾选没有放进本分支安装器。已经勾过的 Hooks 会保留 / The optional Codex work-status bridge from the official RC4 installer is not included. Hooks already installed are left in place.
 
 ## ✦ 上游 0.1.1-RC4 里已经包含的改动 / Already in upstream 0.1.1-RC4
 
