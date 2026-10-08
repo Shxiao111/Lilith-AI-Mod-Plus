@@ -89,31 +89,32 @@ Local GPT-SoVITS can speak a successfully returned text reply, so OpenAI/DeepSee
 
 ### 下載 / Download
 
-- **[GitHub Release v0.2.1](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/tag/v0.2.1)**
+玩家只下載這一個檔案，然後雙擊執行：
 
-發布頁有 `LilithAI-Mod-Setup.exe`、`release-manifest.json`、`SHA256SUMS.txt` 和 `packages/core.zip`。只下載 EXE 時，安裝器會向本倉庫的 Release 索取清單和核心包。
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
 
-The release contains `LilithAI-Mod-Setup.exe`, `release-manifest.json`, `SHA256SUMS.txt`, and `packages/core.zip`. If you download only the EXE, the installer fetches the manifest and the core package from this repository's release.
+Players download only this file, then run it:
 
-補充台詞語音包（約 301 MB，可選）和動態語音運行時（約 1.98 GB）仍從原作者 [v0.1.1-rc4 / v0.1.0-rc1](https://github.com/mimimi6666/Lilith-AI-Mod/releases) 下載。本倉庫不重新發布這些語音內容。安裝器會按清單裡的校驗和核對。
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
 
-The optional supplemental voice pack (~301 MB) and the dynamic voice runtime (~1.98 GB) are still downloaded from the original author's [v0.1.1-rc4 / v0.1.0-rc1 releases](https://github.com/mimimi6666/Lilith-AI-Mod/releases). This repository does not republish that voice content. The installer checks the checksums in the manifest.
+安裝器會自己下載核心包。補充台詞語音（約 301 MB，預設不勾選）和動態語音運行時（約 1.98 GB）也由安裝器取得，來源是原作者的 Release，不用自己去找，也不在本頁附件裡。
 
-> ⚠️ **請勿使用本頁的 `Code → Download ZIP` 安裝 MOD；那裡只有原始碼。**  
-> ⚠️ **Do not install the MOD through `Code → Download ZIP`; that archive is source code.**
+The installer downloads the core package by itself. The supplemental voice pack (~301 MB, unchecked by default) and the dynamic voice runtime (~1.98 GB) are also fetched by the installer from the original author's releases. They are not attachments on this page.
 
-手動放在一起時用這個結構。語音包不用事先放進 `packages`，勾選後由安裝器下載。
+發布頁上其餘檔案都不用下：
 
-Arrange a manual download like this. Leave the voice packages out; the installer downloads them when those components are selected.
+- `core.zip`：核心包，安裝器會下載。
+- `release-manifest.json`：下載地址和校驗和，安裝器會下載。
+- `SHA256SUMS.txt`：只給想自行核對檔案的人。
 
-```text
-Lilith-AI-Mod-0.2.1
-├─ LilithAI-Mod-Setup.exe
-├─ release-manifest.json
-├─ SHA256SUMS.txt
-└─ packages
-   └─ core.zip
-```
+You do not need to download the other files on the release page:
+
+- `core.zip` is the core package. The installer downloads it.
+- `release-manifest.json` holds the download addresses and checksums. The installer downloads it.
+- `SHA256SUMS.txt` is only for people who want to verify the files themselves.
+
+> ⚠️ **不要用本頁的 `Code → Download ZIP`。那是原始碼，不能安裝。**  
+> ⚠️ **Do not use `Code → Download ZIP` on this page. That archive is source code and cannot install the mod.**
 
 > 官方已更新中文與日文語音並覆蓋絕大多數台詞，補充語音包改為可選項目，安裝程式預設不勾選。
 > The official game now ships Chinese and Japanese voiceovers covering almost every line, so the supplemental voice pack is optional and unchecked by default.

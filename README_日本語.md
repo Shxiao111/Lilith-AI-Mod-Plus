@@ -30,6 +30,12 @@ OpenAI と DeepSeek は、現時点では**実験的なテキストチャット�
 
 ## ワンクリックインストール
 
+ダウンロードするのはこのファイルだけです。保存したら実行します。
+
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
+
+インストーラーがコアパッケージを取得します。追加台詞音声と動的音声も、選んだ場合はインストーラーが取得します。Release ページの `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` はダウンロード不要です。リポジトリページの `Code → Download ZIP` はソースコードなので使わないでください。
+
 1. `LilithAI-Mod-Setup.exe` を実行します。
 2. インストーラーは、Steam のレジストリ情報およびすべての Steam ライブラリフォルダーからゲームを自動的に検索します。見つからない場合のみ、**参照**をクリックして `Lilith.exe` を含むフォルダーを選択してください。
 3. 必要なコンポーネントにチェックが入っていることを確認し、**インストール／更新**をクリックします。

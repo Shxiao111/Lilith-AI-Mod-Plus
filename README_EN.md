@@ -28,6 +28,12 @@ OpenAI and DeepSeek currently use an **experimental text-chat compatibility laye
 
 ## One-Click Installation
 
+Download only this file, then run it:
+
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
+
+The installer downloads the core package. It also downloads the supplemental voice pack and the dynamic voice runtime when those options are selected. Leave `core.zip`, `release-manifest.json`, and `SHA256SUMS.txt` on the release page. Do not use `Code → Download ZIP`; that archive is source code.
+
 1. Run `LilithAI-Mod-Setup.exe`.
 2. The installer will automatically locate the game using Steam registry information and all Steam Library folders. If the game cannot be found, click **Browse** and select the folder containing `Lilith.exe`.
 3. Keep the required components selected, then click **Install / Update**.

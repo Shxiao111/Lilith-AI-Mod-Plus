@@ -28,6 +28,12 @@ OpenAI 與 DeepSeek 目前僅提供**實驗性的文字聊天相容層**。基�
 
 ## 一鍵安裝
 
+只下載這一個檔案，然後雙擊執行：
+
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.1/LilithAI-Mod-Setup.exe)**
+
+安裝器會自己下載核心包。補充台詞語音和動態語音也由安裝器下載，不用自己去找。發布頁上的 `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用倉庫頁面的 `Code → Download ZIP`，那是原始碼。
+
 1. 執行 `LilithAI-Mod-Setup.exe`。
 2. 安裝器會從 Steam 登錄資訊與所有 Steam Library 自動找到遊戲；找不到時才需要按「瀏覽」選擇包含 `Lilith.exe` 的資料夾。
 3. 保持需要的元件勾選，按「安裝／更新」。
