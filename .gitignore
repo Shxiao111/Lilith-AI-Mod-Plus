@@ -15,3 +15,9 @@ BepInEx/data/LilithTextInjector/memory/
 LilithAI-Mod-Setup.exe
 packages/
 *.zip
+
+# Local method-inspection scratch tool (debug only, not part of the build)
+tests/MethodChecker/
+
+# Local BepInEx reference assemblies used only to compile the plugin
+src/bepinex-be780/

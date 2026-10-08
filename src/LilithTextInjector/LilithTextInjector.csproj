@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>LilithTextInjector</AssemblyName>
     <GameInterop>C:\Program Files (x86)\Steam\steamapps\common\The NOexistenceN of Lilith\BepInEx\interop</GameInterop>
+    <BepInExCore Condition="'$(BepInExCore)' == ''">..\bepinex-be780\BepInEx\core</BepInExCore>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
@@ -12,10 +13,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <Reference Include="BepInEx.Core" HintPath="..\bepinex-be780\BepInEx\core\BepInEx.Core.dll" />
-    <Reference Include="BepInEx.Unity.IL2CPP" HintPath="..\bepinex-be780\BepInEx\core\BepInEx.Unity.IL2CPP.dll" />
-    <Reference Include="Il2CppInterop.Runtime" HintPath="..\bepinex-be780\BepInEx\core\Il2CppInterop.Runtime.dll" />
-    <Reference Include="0Harmony" HintPath="..\bepinex-be780\BepInEx\core\0Harmony.dll" />
+    <Reference Include="BepInEx.Core" HintPath="$(BepInExCore)\BepInEx.Core.dll" />
+    <Reference Include="BepInEx.Unity.IL2CPP" HintPath="$(BepInExCore)\BepInEx.Unity.IL2CPP.dll" />
+    <Reference Include="Il2CppInterop.Runtime" HintPath="$(BepInExCore)\Il2CppInterop.Runtime.dll" />
+    <Reference Include="0Harmony" HintPath="$(BepInExCore)\0Harmony.dll" />
     <Reference Include="Assembly-CSharp" HintPath="$(GameInterop)\Assembly-CSharp.dll" />
     <Reference Include="Il2Cppmscorlib" HintPath="$(GameInterop)\Il2Cppmscorlib.dll" />
     <Reference Include="UnityEngine" HintPath="$(GameInterop)\UnityEngine.dll" />

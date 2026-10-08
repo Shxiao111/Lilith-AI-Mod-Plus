@@ -1,8 +1,36 @@
-# 莉莉丝 AI MOD 0.1.1 RC4
+# 莉莉丝 AI MOD 0.2.1
 
 这是《The NOexistenceN of Lilith》桌宠的非官方社区 MOD，加入 AI 对话、文字与语音输入、中日文语音、无配音台词补音、天气查询和受限制的本机电脑操作。
 
-## RC4 更新
+> **本仓库是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的个人维护分支。可安装版本是 0.2.1。**
+> 上游 `main`（`3f1e9ea`）对着当前游戏无法独立编译；本分支可以。
+> 本分支沿用上游条款，不另授许可。补充台词语音包和动态语音运行时仍从原作者的 Release 下载，本仓库不重新发布这些语音内容。
+> 差异清单见下方「相对上游的改动」。
+
+## 相对上游的改动
+
+1. **游戏内 AI 设置分页**（PR [#10](https://github.com/mimimi6666/Lilith-AI-Mod/pull/10)）：在官方设置左侧新增「AI」分页，分「当前模型」「提供商与聊天」「语音识别」三个子页；三页共用一份草稿，点「保存全部」统一生效；取消、Esc、切换官方分页或关闭设置都会丢弃未保存编辑；录音或请求处理中不可保存。
+2. **多提供商配置集中到 `BepInEx/config/lilith-ai.json`**：聊天协议支持 `chat-completions` / `responses` / `anthropic` / `gemini`；语音识别协议支持 `gemini-audio` / `qwen-http` / `dashscope-realtime` / `audio-transcriptions`。提供商与模型使用稳定 ID，当前模型是 `{providerId, modelId}` 引用，不再拼接字符串。
+3. **聊天与语音识别互相独立**：两边各自保存地址与凭据，可以使用同名 ID；实时识别失败只回退到「当前模型」页选定的 HTTP 回退。
+4. **适配最新游戏 Build 的设置界面**：上游 `main` 仍引用新版游戏程序集已移除的 `UI.TraySetting.TraySettingView`，无法独立编译；本分支完成适配。
+5. **AI 对话历史查看面板**（PR [#12](https://github.com/mimimi6666/Lilith-AI-Mod/pull/12)）：F7 输入框上方入口，显示最近 32 条记录，区分玩家与莉莉丝，支持滚轮浏览与拖动，带异常隔离。
+6. **文字与语音同步**（PR [#11](https://github.com/mimimi6666/Lilith-AI-Mod/pull/11)）：文字最多延迟 7 秒，语音一旦就绪立即显示。
+7. **安装器与语音运行时可靠性**：改进安装恢复流程，安装前校验语音运行时就绪状态。
+8. **新增 4 个测试项目**：`LilithAiSettingsTests`、`LilithAiSettingsUiTests`、`LilithNativeVoiceCompatibilityTests`、`LilithVoicePolicyTests`（上游仓库没有 `tests/` 目录）。
+9. **补充语音包改为可选项**：官方中／日文配音已覆盖绝大多数台词，安装器的「完整中／日文补充台词语音」复选框默认不勾选；勾选安装时，安装器会把 `BepInEx/config/community.lilith.textinjector.cfg` 的 `NativeVoicePackEnabled` 自动写为 `true`，插件端默认值改为 `false`，未安装语音包的玩家不会再走补充语音分支。
+
+### 同步上游
+
+```bash
+git fetch upstream
+git merge upstream/main
+```
+
+### 许可
+
+本分支沿用上游条款，未另外授予任何许可，详见文末「非官方 AI 语音 MOD 声明」。
+
+## 上游 0.1.1-RC4 中已有的更新
 
 - 兼容官方 Build `24273498` 的分类设置界面。
 - MOD 设置只在“控制”分页显示，不再覆盖其他设置。
@@ -11,17 +39,16 @@
 - 加入已测试的千问聊天与语音识别、服务商原生联网搜索，以及明确电脑指令的本机可靠路由。
 - 应用启动可从运行中程序、Windows 开始菜单、Store／MSIX 注册与快捷方式解析，不写死玩家路径。
 - 修复 API Key 窗口残留鼠标／键盘焦点，并将原生权益兑换与 API Key 输入完全分离。
-- 安装程序可选将隐私最小化的莉莉丝 Codex 桥接合并到现有 Hooks，不覆盖其他 Hooks。
 
 ## AI 服务兼容性
 
-**目前仍推荐优先使用 Gemini；它是 0.1.1-RC4 测试最完整、针对性优化最多的服务。** 角色人格、上下文、多语言输出、日文显示／语音分离、Google Search、AI 信件和自然语言电脑工具，均主要以 Gemini API 开发。
+**目前仍推荐优先使用 Gemini。** 角色人格、上下文、多语言输出、日文显示／语音分离、Google Search、AI 信件和自然语言电脑工具，均主要以 Gemini API 开发。
 
 千问已经完成实际接入测试，默认使用 `qwen3.7-plus` 聊天、`qwen3-asr-flash` 识别语音，并支持服务商原生联网搜索以及明确应用、媒体、截图和受审核电脑指令的本机路由。可用性、免费额度和计费要求取决于玩家的阿里云模型服务账户与地区。
 
 OpenAI 与 DeepSeek 目前仅提供**实验性的文字聊天兼容层**。基本请求已经实现，成功返回的文字也可能由本地 GPT-SoVITS 朗读，但尚未针对各模型、响应格式、额度、地区限制及后续 API 变更进行完整测试。这两项服务目前没有接入服务商原生的联网搜索与工具调用；只有部分明确命令仍可由 MOD 在本机直接识别。
 
-`F6` 语音识别在 Gemini 和千问模式会跟随所选服务；OpenAI 与 DeepSeek 目前仍使用 Gemini 识别，因此语音输入需要另外保存 Gemini API Key。
+`F6` 使用「当前模型」页选定的语音识别模型。聊天选了 OpenAI 或 DeepSeek 时，不再强制改走 Gemini 识别。
 
 ## 一键安装
 
@@ -29,8 +56,7 @@ OpenAI 与 DeepSeek 目前仅提供**实验性的文字聊天兼容层**。基�
 2. 安装程序会读取 Steam 与所有 Steam Library，自动寻找游戏。只有无法定位时才需要选择包含 `Lilith.exe` 的文件夹。
 3. 保持需要的组件勾选，点击“安装／更新”。
 4. 首次安装 AI 动态语音时，安装程序会建立独立的推理环境，不会修改玩家电脑已有的 Python。
-5. 启动后打开游戏设置的“AI”分页，配置提供商连接与模型，并选择聊天和语音识别模型。
-6. 如果勾选 Codex 桥接，Codex 下次启动时可能会要求审核并启用三个莉莉丝 Hooks；安装程序只会合并莉莉丝项目，不会覆盖其他 Hooks。
+5. 启动后打开游戏设置的“AI”分页，配置提供商连接与模型，并选择聊天和语音识别模型。F6／F7 仍在“控制”分页。安装器没有 Codex 桥接勾选。
 
 安装包不包含作者 API Key、聊天记录、玩家姓名、日志、截图、训练数据集或开发电脑路径。更新也不会覆盖已有 API Key、聊天记忆、按键和其他玩家设置。
 
@@ -140,7 +166,6 @@ ASR 支持 `gemini-audio`、`qwen-http`、`dashscope-realtime` 和 `audio-transc
 - 语音主机日志：`BepInEx\data\LilithTextInjector\voice-runtime\logs\voice-host.log`
 - 语音安装日志：`BepInEx\data\LilithTextInjector\voice-runtime\voice-runtime-install.log`
 
-## 发布注意
 ## 非官方 AI 语音 MOD 声明
 
 本 MOD 为玩家自行制作的非官方、非商业性游戏模组，仅供游戏交流与个人娱乐使用。
@@ -157,10 +182,13 @@ ASR 支持 `gemini-audio`、`qwen-http`、`dashscope-realtime` 和 `audio-transc
 
 使用者应自行遵守所在地的法律法规、游戏用户协议、MOD 政策及发布平台规则。若相关权利人认为本 MOD 涉及权益问题，可通过以下方式联系作者：
 
-联系方式：**[mimimi5206666@gmail.com]**
+对本分支安装包的权利通知请联系发布者。语音模型仍来自上游发布，未经允许不要再分发。上游作者米米：mimimi5206666@gmail.com。
 
-作者收到具体且可验证的权利通知后，将及时核实，并视情况停止提供、删除或调整相关内容。
+联系方式：**shxiao1115@163.com**
 
-发布者：米米
-版本：0.1.1-RC4
-发布日期：2026/7/18
+发布者收到具体且可验证的权利通知后，将及时核实，并视情况停止提供、删除或调整相关内容。
+
+发布者：Shxiao
+上游项目：[mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4
+版本：0.2.1
+发布日期：2026/10/08

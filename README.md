@@ -9,7 +9,7 @@
 
 [繁體中文說明](README_繁體中文.md) · [简体中文说明](README_简体中文.md) · [日本語ガイド](README_日本語.md) · [English Guide](README_EN.md)
 
-- **[Discord](https://discord.gg/b3eJJhEfAC)**
+- 上游社区 / Upstream community: **[Discord](https://discord.gg/b3eJJhEfAC)**（原作者米米的服务器，不是本分支的支持渠道 / MIMI's server, not support for this fork）
 
 </div>
 
@@ -24,7 +24,18 @@ This unofficial AI extension for *The NOexistenceN of Lilith* keeps Lilith's qui
 > 「今天也要和我說說話嗎？」  
 > “Will you stay and talk with me today?”
 
-## ✦ 0.1.1-RC4 更新內容 / What's new in 0.1.1-RC4
+## ✦ 0.2.1 / This fork
+
+本仓库是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的个人维护分支，可安装版本为 **0.2.1**。上游 `main` 对着当前游戏无法独立编译；本分支可以。本分支沿用上游条款，不另授许可。补充台词语音包和动态语音运行时仍从原作者的 Release 下载，这里不重新发布那些语音内容。
+
+This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.1**. Upstream `main` does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
+
+- 游戏设置左侧新增「AI」分页，聊天与语音识别分开配置 / The in-game settings gain an **AI** page. Chat and speech recognition are configured separately.
+- 适配当前游戏的设置界面 / The settings UI matches the current game build.
+- 补充台词语音默认不安装；只有勾选安装时才会打开补充语音 / The supplemental voice pack is off unless you choose to install it.
+- 文字会等语音就绪后再出现，最多等 7 秒；F7 输入框可查看最近对话 / Replies wait for the generated voice for up to 7 seconds, and the F7 field can show recent turns.
+
+## ✦ 上游 0.1.1-RC4 里已经包含的改动 / Already in upstream 0.1.1-RC4
 
 - 啟動階段改為分項隔離；單一非必要 Hook 不相容時，其餘 MOD 功能仍可繼續載入，錯誤會寫入 `BepInEx/LogOutput.log` / Startup stages are isolated so one incompatible optional hook no longer prevents the remaining MOD features from loading
 - 安裝器會重試暫時性的檔案鎖定與覆寫失敗，顯示實際問題路徑，並在解壓後驗證 BepInEx 與 MOD DLL / The installer retries transient file locks, reports the exact failing path, and verifies the core installation after extraction
@@ -46,22 +57,22 @@ This unofficial AI extension for *The NOexistenceN of Lilith* keeps Lilith's qui
 
 <div align="center">
 
-<img src="docs/images/settings-and-voice-language.png" alt="Lilith AI MOD settings, key bindings, and Chinese or Japanese voice selection">
+<img src="docs/images/settings-and-voice-language.png" alt="Controls page with F7 text input, F6 push-to-talk, and the advanced PC controls switch">
 
-<sub>設定、可自訂按鍵與中文／日文語音切換 · Settings, rebindable controls, and Chinese/Japanese voice selection</sub>
+<sub>「控制」分頁裡的 F7、F6 和高級電腦操作。0.2.1 的提供商與模型在左側「AI」分頁，這張圖裡沒有。 · F7, F6, and advanced PC controls on the Controls page. Provider and model setup is on the AI page, which is not shown here.</sub>
 
 </div>
 
 ## ✦ AI 服務相容性 / AI provider compatibility
 
-> **目前仍建議優先使用 Gemini；它是 0.1.1-RC4 測試最完整、針對性優化最多的服務。千問已完成文字對話、語音辨識、聯網搜尋與明確本機指令的實際接入測試。OpenAI 與 DeepSeek 仍是實驗性文字相容層。**
+> **目前仍建議優先使用 Gemini。** 角色人格、上下文和工具主要圍繞 Gemini 開發。千問已完成文字對話、語音辨識、聯網搜尋與明確本機指令的接入測試。OpenAI 與 DeepSeek 仍是實驗性文字相容層。語音辨識在「AI」分頁單獨選擇，不再因為聊天用了 OpenAI 或 DeepSeek 就固定走 Gemini。
 
-> **Gemini remains the recommended and most extensively optimized provider in 0.1.1-RC4. Qwen has been tested for chat, speech recognition, web search, and explicit local commands. OpenAI and DeepSeek remain experimental text-chat compatibility layers.**
+> **Gemini remains the recommended provider.** Personality, context, and tools were developed primarily around Gemini. Qwen has been tested for chat, speech recognition, web search, and explicit local commands. OpenAI and DeepSeek remain experimental text-chat layers. Speech recognition is chosen on the AI page and is no longer forced to Gemini when chat uses OpenAI or DeepSeek.
 
 | 功能 / Feature | Gemini | Qwen | OpenAI / DeepSeek |
 |---|---|---|---|
 | 文字對話 / Text chat | ✅ 已測試並完整調整 / Fully tested and tuned | ✅ `qwen3.7-plus` 已測試 / `qwen3.7-plus` tested | 🧪 基本相容，未完成端到端測試 / Basic compatibility only |
-| `F6` 語音辨識 / Speech recognition | ✅ Gemini 音訊辨識 | ✅ `qwen3-asr-flash` | ⚠️ 目前仍使用 Gemini 辨識 / Currently uses Gemini transcription |
+| `F6` 語音辨識 / Speech recognition | 在「AI」分頁單獨選擇 / Chosen separately on the AI page | 在「AI」分頁單獨選擇 / Chosen separately on the AI page | 在「AI」分頁單獨選擇 / Chosen separately on the AI page |
 | 即時聯網搜尋 / Live web search | ✅ Google Search grounding | ✅ 千問原生聯網 / Qwen native web search | ❌ 尚未接入 / Not integrated |
 | 電腦工具 / PC tools | ✅ Function calling 與本機可靠路由 | ✅ 明確指令的本機可靠路由 | ⚠️ 僅部分明確本機指令 |
 
@@ -75,53 +86,43 @@ Local GPT-SoVITS can speak a successfully returned text reply, so OpenAI/DeepSee
 
 ## 🍓 一鍵安裝 / One-click setup
 
-### 推薦下載 / Recommended download
+### 下載 / Download
 
-- **[Google Drive 完整包鏡像 / Full package mirror](https://drive.google.com/file/d/1UxynMsGJrl0nuA5b3JS2YFTsfRVafIG4/view?usp=sharing)**
-- **[百度網盤完整包 / Baidu full package mirror](https://pan.baidu.com/s/1oYcX5PYBxKLvvMdi0cE8Uw?pwd=2u2c)** — 提取碼 / Code: `2u2c`
+- **[GitHub Release v0.2.1](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/tag/v0.2.1)**
 
-以上皆為 RC4 完整安裝包。壓縮檔解壓密碼為 `I love you, Lilith.`。完整解壓縮後，直接執行資料夾內的 `LilithAI-Mod-Setup.exe`。  
-Both links provide the complete RC4 package. The archive password is `I love you, Lilith.`. Extract all files, then run `LilithAI-Mod-Setup.exe` from the extracted folder.
+發布頁有 `LilithAI-Mod-Setup.exe`、`release-manifest.json`、`SHA256SUMS.txt` 和 `packages/core.zip`。只下載 EXE 時，安裝器會向本倉庫的 Release 索取清單和核心包。
 
-> ⚠️ **請勿使用首頁的 `Code → Download ZIP` 安裝 MOD；那裡只有原始碼，不是可安裝的發布包。**  
-> ⚠️ **Do not install the MOD through `Code → Download ZIP`; it contains source code, not the installable release.**
+The release contains `LilithAI-Mod-Setup.exe`, `release-manifest.json`, `SHA256SUMS.txt`, and `packages/core.zip`. If you download only the EXE, the installer fetches the manifest and the core package from this repository's release.
 
-### GitHub Release 手動下載 / Manual GitHub Release download
+補充台詞語音包（約 301 MB，可選）和動態語音運行時（約 1.98 GB）仍從原作者 [v0.1.1-rc4 / v0.1.0-rc1](https://github.com/mimimi6666/Lilith-AI-Mod/releases) 下載。本倉庫不重新發布這些語音內容。安裝器會按清單裡的校驗和核對。
 
-[GitHub Release](https://github.com/mimimi6666/Lilith-AI-Mod/releases) 的 Assets 會平鋪顯示，但 RC4 安裝器的本機套件必須放在 `packages` 子資料夾。若要手動下載所有附件，請整理成以下結構：
+The optional supplemental voice pack (~301 MB) and the dynamic voice runtime (~1.98 GB) are still downloaded from the original author's [v0.1.1-rc4 / v0.1.0-rc1 releases](https://github.com/mimimi6666/Lilith-AI-Mod/releases). This repository does not republish that voice content. The installer checks the checksums in the manifest.
 
-GitHub Release Assets are displayed as a flat list, while the RC4 installer expects local packages inside a `packages` subfolder. If you download the assets manually, arrange them like this:
+> ⚠️ **請勿使用本頁的 `Code → Download ZIP` 安裝 MOD；那裡只有原始碼。**  
+> ⚠️ **Do not install the MOD through `Code → Download ZIP`; that archive is source code.**
+
+手動放在一起時用這個結構。語音包不用事先放進 `packages`，勾選後由安裝器下載。
+
+Arrange a manual download like this. Leave the voice packages out; the installer downloads them when those components are selected.
 
 ```text
-Lilith-AI-Mod-0.1.1-RC4
+Lilith-AI-Mod-0.2.1
 ├─ LilithAI-Mod-Setup.exe
 ├─ release-manifest.json
 ├─ SHA256SUMS.txt
 └─ packages
-   ├─ core.zip
-   ├─ voice-pack.zip
-   └─ voice-runtime.zip
+   └─ core.zip
 ```
 
-只下載 EXE 時，安裝器會自動取得 RC4 清單與缺少的套件。未變更的補充語音包沿用 RC1，更新後的語音執行環境則由 RC4 Release 下載。若網路、地區限制或大型檔案下載失敗，請改用上方的 Google Drive 或百度網盤完整包。
+> 官方已更新中文與日文語音並覆蓋絕大多數台詞，補充語音包改為可選項目，安裝程式預設不勾選。
+> The official game now ships Chinese and Japanese voiceovers covering almost every line, so the supplemental voice pack is optional and unchecked by default.
 
-If only the EXE is downloaded, the installer retrieves the RC4 manifest and missing packages automatically. The unchanged supplemental voice pack is reused from RC1, while the updated voice runtime is downloaded from the RC4 release. If networking, regional availability, or large-file downloads fail, use the complete Google Drive or Baidu package above.
-
-> 官方已更新中文與日文語音並覆蓋絕大多數台詞，補充語音包改為可選項目，安裝程式預設不勾選；僅在需要為少數仍無官方配音的台詞補音時安裝。
-> The official game now ships Chinese and Japanese voiceovers covering almost every line, so the supplemental voice pack is optional and unchecked by default; install it only to backfill the few lines that still lack official audio.
-
-1. 完整解壓縮或整理好上述資料夾後，再執行安裝程式；它會自動尋找 Steam 遊戲路徑。  
-   Extract the complete package or arrange the folders above before running the installer; it automatically searches your Steam libraries.
-2. 開啟遊戲後，在左下角莉莉絲圖示按右鍵，選擇 AI 服務並輸入自己的 API Key。  
-   Launch the game, right-click Lilith's tray icon, choose an AI provider, and enter your own API key.
-
-<div align="center">
-
-<img src="docs/images/api-provider-menu.png" alt="Choose Gemini, OpenAI, or DeepSeek from the Lilith tray menu">
-
-<sub>從工作列選單加入自己的 API Key · Add your own API key and choose a provider from the tray menu</sub>
-
-</div>
+1. 執行安裝程式。它會讀取 Steam 與所有 Steam Library，自動尋找遊戲；只有找不到時才需要選擇包含 `Lilith.exe` 的資料夾。  
+   Run the installer. It searches Steam and every Steam library, and asks for the folder that contains `Lilith.exe` only when it cannot find the game.
+2. 保持需要的元件勾選，點「安裝／更新」。首次安裝動態語音會建立獨立的推理環境，不會改動電腦裡已有的 Python。  
+   Keep the components you want, then click Install / Update. The first dynamic-voice install builds its own inference environment and does not modify an existing Python.
+3. 啟動遊戲，打開設定左側的「AI」分頁，分別配置聊天和語音識別。F6／F7 仍在「控制」分頁。  
+   Launch the game, open the **AI** page in Settings, and configure chat and speech recognition there. F6 and F7 stay on the Controls page.
 
 > ✧ 安裝包不包含作者的 API Key、聊天記錄、玩家名稱或私人資料。  
 > ✧ The package contains no author API key, chat history, player name, or private data.
@@ -206,7 +207,8 @@ This is a free, non-commercial fan project. It is not authorized, endorsed, spon
 
 ### ✦ 「如果你願意，我就再陪你一會。」 ✦
 
-**Version 0.1.1-RC4 · Publisher: MIMI**
+**Version 0.2.1 · Publisher: Shxiao**  
+Fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4 · Contact: shxiao1115@163.com
 
 </div>
 

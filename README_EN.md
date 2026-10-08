@@ -1,8 +1,12 @@
-# Lilith AI MOD 0.1.1 RC4
+# Lilith AI MOD 0.2.1
 
 This is an unofficial community MOD for the desktop companion game *The NOexistenceN of Lilith*. It adds AI conversations, text and voice input, Chinese and Japanese voice output, voice lines for previously unvoiced dialogue, weather features, and reviewed local computer controls.
 
-## RC4 Update
+> This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.1**. Upstream `main` (`3f1e9ea`) does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
+
+0.2.1 adds an in-game **AI** settings page, keeps chat and speech recognition independent, waits up to 7 seconds so a reply can appear with its voice, and leaves the supplemental voice pack unchecked unless you install it.
+
+## Included from upstream 0.1.1-RC4
 
 * Added compatibility with the categorized settings interface in official Build `24273498`.
 * MOD controls now appear only on the **Controls** tab and no longer overlap other settings pages.
@@ -11,17 +15,16 @@ This is an unofficial community MOD for the desktop companion game *The NOexiste
 * Added tested Qwen chat and speech recognition, provider-native web search, and reliable local routing for explicit computer commands.
 * Installed applications can now be resolved from running processes, Windows Start apps, Store/MSIX registrations, and shortcuts without hard-coded player paths.
 * Fixed API-key dialogs retaining mouse/keyboard focus and kept the native entitlement redemption window separate from API-key entry.
-* The installer can optionally merge the privacy-minimized Lilith Codex bridge into existing Codex Hooks without replacing unrelated hooks.
 
 ## AI Provider Compatibility
 
-**Gemini remains the recommended and most extensively optimized provider for version 0.1.1-RC4.** Personality behavior, context handling, multilingual output, Japanese display/voice separation, Google Search grounding, AI letters, and natural-language computer tools were primarily developed around the Gemini API.
+**Gemini remains the recommended provider.** Personality behavior, context handling, multilingual output, Japanese display/voice separation, Google Search grounding, AI letters, and natural-language computer tools were primarily developed around the Gemini API.
 
 Qwen now has a tested integration using `qwen3.7-plus` for chat and `qwen3-asr-flash` for speech recognition. It supports provider-native web search for current information and deterministic local routing for explicit application, media, screenshot, and reviewed computer-control commands. Availability, free quota, and billing requirements depend on the player’s Alibaba Cloud Model Studio account and region.
 
 OpenAI and DeepSeek currently use an **experimental text-chat compatibility layer**. Basic requests are implemented, and local GPT-SoVITS may speak a reply that was returned successfully, but these providers have not been tested end to end across their available models, response formats, quotas, regional restrictions, or future API changes. Provider-native web search and function calling are not integrated for them; only some explicit local commands may still be recognized by the MOD itself.
 
-`F6` speech recognition follows the selected provider for Gemini and Qwen. OpenAI and DeepSeek currently use Gemini transcription and therefore still require a separately saved Gemini API key for voice input.
+`F6` uses the speech-recognition model selected on the AI page. Choosing OpenAI or DeepSeek for chat no longer forces Gemini transcription.
 
 ## One-Click Installation
 
@@ -29,8 +32,7 @@ OpenAI and DeepSeek currently use an **experimental text-chat compatibility laye
 2. The installer will automatically locate the game using Steam registry information and all Steam Library folders. If the game cannot be found, click **Browse** and select the folder containing `Lilith.exe`.
 3. Keep the required components selected, then click **Install / Update**.
 4. The first installation of AI dynamic voice generation will download a separate inference environment. This may take several minutes. It will not use or modify any Python installation already present on the player’s computer.
-5. After launching the game, right-click the Lilith icon in the lower-left corner, select **Add API Key** and a model provider, then enter the player’s own API key.
-6. If the optional Codex bridge was selected, Codex may ask you to review and activate the three Lilith hooks on its next launch. The installer merges them with existing hooks instead of replacing unrelated entries.
+5. After launching the game, open the **AI** page in Settings and configure the chat and speech-recognition providers. F6 and F7 remain on the Controls page. The installer has no Codex-bridge checkbox.
 
 The installer does not include the author’s API key, chat history, player name, logs, screenshots, training datasets, or development computer paths.
 
@@ -77,8 +79,6 @@ Updates will not overwrite existing API keys, chat memory, key bindings, or play
 * Voice installation log: `BepInEx\data\LilithTextInjector\voice-runtime\voice-runtime-install.log`
 * If the MOD stops loading after a Steam game update, run the installer again first. If the problem continues, include the relevant logs when reporting the issue.
 
-## Distribution Notice
-
 ## Unofficial AI Voice MOD Disclaimer
 
 This MOD is an unofficial, non-commercial game modification independently created by a player. It is provided solely for game-related community use and personal entertainment.
@@ -109,10 +109,13 @@ Users are responsible for complying with the laws and regulations applicable in 
 
 If a relevant rights holder believes that this MOD affects or infringes upon their rights or interests, they may contact the creator through the following channel:
 
-Contact: **[mimimi5206666@gmail.com]**
+Send rights notices about this fork's package to the publisher below. The voice models still come from the upstream release; do not redistribute them without permission. Upstream author MIMI: mimimi5206666@gmail.com.
 
-Upon receiving a specific and verifiable rights-related notice, the creator will promptly review the matter and, where appropriate, suspend distribution, remove, or modify the relevant content.
+Contact: **shxiao1115@163.com**
 
-Publisher: MIMI
-Version: 0.1.1-RC4
-Release Date: July 18, 2026
+After receiving a specific and verifiable rights notice, the publisher will review it and, where appropriate, suspend distribution, remove, or modify the relevant content.
+
+Publisher: Shxiao
+Upstream: [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4
+Version: 0.2.1
+Release Date: October 8, 2026
