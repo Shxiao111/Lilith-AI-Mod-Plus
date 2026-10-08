@@ -59,9 +59,13 @@ This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.
 
 <div align="center">
 
-<img src="docs/images/settings-and-voice-language.png" alt="Controls page with F7 text input, F6 push-to-talk, and the advanced PC controls switch">
+<img src="docs/images/control.png" alt="Controls page with F7 text input, F6 push-to-talk, advanced PC controls, and the AI tab in the left list">
 
-<sub>「控制」分頁裡的 F7、F6 和高級電腦操作。提供商與模型在左側「AI」分頁，這張圖裡沒有。 · F7, F6, and advanced PC controls on the Controls page. Provider and model setup is on the AI page, which is not shown here.</sub>
+<sub>「控制」分頁：文字輸入 F7、按住說話 F6、高級電腦操作。左側可以切到「AI」。 · Controls: F7 text input, F6 push-to-talk, and advanced PC controls. The AI tab is in the list on the left.</sub>
+
+<img src="docs/images/AI.png" alt="AI page, Current model: chat and speech recognition chosen separately, with Cancel and Save all">
+
+<sub>「AI」分頁的「當前模型」：聊天和語音識別分開選擇，按「保存全部」生效。 · AI page, Current model: chat and speech recognition are separate. Save all applies them.</sub>
 
 </div>
 
