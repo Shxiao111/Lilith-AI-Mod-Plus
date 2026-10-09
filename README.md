@@ -96,11 +96,11 @@ Local GPT-SoVITS can speak a successfully returned text reply, so OpenAI/DeepSee
 
 玩家只下載這一個檔案，然後雙擊執行：
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 Players download only this file, then run it:
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 安裝器會自己下載核心包。補充台詞語音（約 301 MB，預設不勾選）和動態語音運行時（約 1.98 GB）也由安裝器取得，來源是原作者的 Release，不用自己去找，也不在本頁附件裡。
 
@@ -215,7 +215,7 @@ This is a free, non-commercial fan project. It is not authorized, endorsed, spon
 ### ✦ 「如果你願意，我就再陪你一會。」 ✦
 
 **Version 0.2.2 · Publisher: Shxiao**  
-Fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4 · Contact: shxiao1115@163.com
+Fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4 · Contact: shxiao1115@gmail.com
 
 </div>
 

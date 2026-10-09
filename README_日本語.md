@@ -32,7 +32,7 @@ OpenAI と DeepSeek は、現時点では**実験的なテキストチャット�
 
 ダウンロードするのはこのファイルだけです。保存したら実行します。
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 インストーラーがコアパッケージを取得します。追加台詞音声と動的音声も、選んだ場合はインストーラーが取得します。Release ページの `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` はダウンロード不要です。リポジトリページの `Code → Download ZIP` はソースコードなので使わないでください。
 
@@ -125,7 +125,7 @@ OpenAI と DeepSeek は、現時点では**実験的なテキストチャット�
 
 このフォークの配布物に関する権利通知は、以下の公開者へ送ってください。音声モデルは上流の Release のままです。許可なく再配布しないでください。上流の作者 米米：mimimi5206666@gmail.com。
 
-連絡先：**shxiao1115@163.com**
+連絡先：**shxiao1115@gmail.com**
 
 公開者は、具体的かつ確認可能な権利に関する通知を受領した場合、速やかに内容を確認し、必要に応じて配布停止、削除、または該当内容の修正を行います。
 

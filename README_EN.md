@@ -30,7 +30,7 @@ OpenAI and DeepSeek currently use an **experimental text-chat compatibility laye
 
 Download only this file, then run it:
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 The installer downloads the core package. It also downloads the supplemental voice pack and the dynamic voice runtime when those options are selected. Leave `core.zip`, `release-manifest.json`, and `SHA256SUMS.txt` on the release page. Do not use `Code → Download ZIP`; that archive is source code.
 
@@ -119,7 +119,7 @@ If a relevant rights holder believes that this MOD affects or infringes upon the
 
 Send rights notices about this fork's package to the publisher below. The voice models still come from the upstream release; do not redistribute them without permission. Upstream author MIMI: mimimi5206666@gmail.com.
 
-Contact: **shxiao1115@163.com**
+Contact: **shxiao1115@gmail.com**
 
 After receiving a specific and verifiable rights notice, the publisher will review it and, where appropriate, suspend distribution, remove, or modify the relevant content.
 

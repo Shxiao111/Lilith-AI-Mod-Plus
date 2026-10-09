@@ -30,7 +30,7 @@ OpenAI 與 DeepSeek 目前僅提供**實驗性的文字聊天相容層**。基�
 
 只下載這一個檔案，然後雙擊執行：
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 安裝器會自己下載核心包。補充台詞語音和動態語音也由安裝器下載，不用自己去找。發布頁上的 `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用倉庫頁面的 `Code → Download ZIP`，那是原始碼。
 
@@ -104,7 +104,7 @@ OpenAI 與 DeepSeek 目前僅提供**實驗性的文字聊天相容層**。基�
 
 對本分支安裝包的權利通知請聯絡發布者。語音模型仍來自上游發布，未經允許不要再分發。上游作者米米：mimimi5206666@gmail.com。
 
-聯絡方式：**shxiao1115@163.com**
+聯絡方式：**shxiao1115@gmail.com**
 
 發布者收到具體且可驗證的權利通知後，將及時核實，並視情況停止提供、刪除或調整相關內容。
 

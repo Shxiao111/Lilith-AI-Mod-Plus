@@ -55,7 +55,7 @@ OpenAI 与 DeepSeek 目前仅提供**实验性的文字聊天兼容层**。基�
 
 只下载这一个文件，然后双击运行：
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao101/Lilith-AI-Mod-plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
 
 安装器会自己下载核心包。补充台词语音和动态语音也由安装器下载，不用自己去找。发布页上的 `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用仓库页面的 `Code → Download ZIP`，那是源码。
 
@@ -193,7 +193,7 @@ ASR 支持 `gemini-audio`、`qwen-http`、`dashscope-realtime` 和 `audio-transc
 
 对本分支安装包的权利通知请联系发布者。语音模型仍来自上游发布，未经允许不要再分发。上游作者米米：mimimi5206666@gmail.com。
 
-联系方式：**shxiao1115@163.com**
+联系方式：**shxiao1115@gmail.com**
 
 发布者收到具体且可验证的权利通知后，将及时核实，并视情况停止提供、删除或调整相关内容。
 

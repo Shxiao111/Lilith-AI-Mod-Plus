@@ -1,7 +1,7 @@
 # Lilith AI Mod 0.2.2
 # voice-pack.zip and voice-runtime.zip are not attached to this release.
 # The checksums below are the upstream files the installer downloads.
-a0d69e7434f2f5a722a14d4bd5d295fe02471351d85eaf5435fe5b472fa5a16e *LilithAI-Mod-Setup.exe
+bc77bdb1558e203661d821051d5e97fc765590d67ecd69b2665e75d6459c6cc6 *LilithAI-Mod-Setup.exe
 b761334c219c9a5f256ba4459dc770efcc74d290dbb335f90c2d66a98001687a *packages/core.zip
 a3d4e2160fbdb8784e4d3e88843c24d39ad1a82e359140eaa95ab4512e07e8a0 *packages/voice-pack.zip
 8aacbcd6b5595e1542d08d0b14b386cb3fb4eb46154aea9b5ff1da5484f42201 *packages/voice-runtime.zip

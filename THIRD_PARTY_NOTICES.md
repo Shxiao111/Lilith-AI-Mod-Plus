@@ -40,9 +40,9 @@ Any modification, packaging, configuration, or integration performed by this MOD
 
 Where an applicable open-source license requires the provision of corresponding source code, modifications, build scripts, relinking information, or other materials, users may obtain them from the following location:
 
-Source code / Corresponding source for this fork: https://github.com/Shxiao101/Lilith-AI-Mod-plus
+Source code / Corresponding source for this fork: https://github.com/Shxiao111/Lilith-AI-Mod-Plus
 Version or commit identifier: v0.2.2
-Contact: **shxiao1115@163.com**
+Contact: **shxiao1115@gmail.com**
 
 This 0.2.2 core package is built from the fork above. It is based on [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) `v0.1.1-rc4` and replaces the mod plugin. The supplemental voice pack and dynamic voice runtime are not in this repository. The installer downloads them from that upstream release. BepInEx source remains the BepInEx project linked above.
 
