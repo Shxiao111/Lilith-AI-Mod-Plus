@@ -1,10 +1,10 @@
-# 莉莉絲 AI MOD 0.2.2
+# 莉莉絲 AI MOD 0.2.3
 
 這是《The NOexistenceN of Lilith》桌寵的非官方社群 MOD。它加入 AI 對話、文字與語音輸入、中／日語音、補充無配音台詞、天氣與經過審核的本機電腦操作。
 
-> 本倉庫是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的個人維護分支，可安裝版本為 **0.2.2**。上游 `main`（`3f1e9ea`）對著目前遊戲無法獨立編譯；本分支可以。本分支沿用上游條款，不另授許可。補充台詞語音包與動態語音執行環境仍從原作者的 Release 下載，本倉庫不重新發布這些語音內容。
+> 本倉庫是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的個人維護分支，可安裝版本為 **0.2.3**。上游 `main`（`3f1e9ea`）對著目前遊戲無法獨立編譯；本分支可以。本分支沿用上游條款，不另授許可。補充台詞語音包與動態語音執行環境仍從原作者的 Release 下載，本倉庫不重新發布這些語音內容。
 
-0.2.1 在遊戲設定左側加入「AI」分頁，聊天與語音辨識分開配置；文字最多等語音 7 秒；補充台詞語音預設不勾選。0.2.2 新增聊天或語音連線時不再填寫 Provider ID，列表顯示名稱和協議；聊天協議存在連線上。既有設定不用重新填寫金鑰。
+0.2.1 在遊戲設定左側加入「AI」分頁，聊天與語音辨識分開配置；文字最多等語音 7 秒；補充台詞語音預設不勾選。0.2.2 新增聊天或語音連線時不再填寫 Provider ID，列表顯示名稱和協議；聊天協議存在連線上。既有設定不用重新填寫金鑰。0.2.3 的安裝器會在下載結束後先關閉檔案再移動；校驗失敗會刪除壞包，下次重新下載。核心包與 0.2.2 相同。
 
 ## 上游 0.1.1-RC4 已包含的更新
 
@@ -30,7 +30,7 @@ OpenAI 與 DeepSeek 目前僅提供**實驗性的文字聊天相容層**。基�
 
 只下載這一個檔案，然後雙擊執行：
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/LilithAI-Mod-Setup.exe)**
 
 安裝器會自己下載核心包。補充台詞語音和動態語音也由安裝器下載，不用自己去找。發布頁上的 `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用倉庫頁面的 `Code → Download ZIP`，那是原始碼。
 
@@ -110,5 +110,5 @@ OpenAI 與 DeepSeek 目前僅提供**實驗性的文字聊天相容層**。基�
 
 發布者：Shxiao
 上游項目：[mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4
-版本：0.2.2
-發布日期：2026/10/08
+版本：0.2.3
+發布日期：2026/10/11

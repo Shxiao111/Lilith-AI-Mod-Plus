@@ -24,12 +24,13 @@ This unofficial AI extension for *The NOexistenceN of Lilith* keeps Lilith's qui
 > 「今天也要和我說說話嗎？」  
 > “Will you stay and talk with me today?”
 
-## ✦ 0.2.2 / This fork
+## ✦ 0.2.3 / This fork
 
-本仓库是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的个人维护分支，可安装版本为 **0.2.2**。上游 `main` 对着当前游戏无法独立编译；本分支可以。本分支沿用上游条款，不另授许可。补充台词语音包和动态语音运行时仍从原作者的 Release 下载，这里不重新发布那些语音内容。
+本仓库是 [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 的个人维护分支，可安装版本为 **0.2.3**。上游 `main` 对着当前游戏无法独立编译；本分支可以。本分支沿用上游条款，不另授许可。补充台词语音包和动态语音运行时仍从原作者的 Release 下载，这里不重新发布那些语音内容。
 
-This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.2**. Upstream `main` does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
+This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.3**. Upstream `main` does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
 
+- 0.2.3：安装器在下载结束后先关闭文件再移动；校验失败会删掉坏包，下次重新下载。核心包与 0.2.2 相同。 / 0.2.3 closes a finished download before moving it, and deletes a package that fails its checksum so the next run downloads it again. The core package is unchanged from 0.2.2.
 - 0.2.2：新建聊天或语音连接不再填写 Provider ID，列表显示名称和协议；聊天协议保存在连接上。已有配置不用重新填写密钥 / 0.2.2 no longer asks for a Provider ID on a new chat or speech connection. The list shows the name and protocol, and the chat protocol is stored on the connection. Existing configs keep their keys.
 - 游戏设置左侧新增「AI」分页，聊天与语音识别分开配置 / The in-game settings gain an **AI** page. Chat and speech recognition are configured separately.
 - 适配当前游戏的设置界面 / The settings UI matches the current game build.
@@ -96,11 +97,11 @@ Local GPT-SoVITS can speak a successfully returned text reply, so OpenAI/DeepSee
 
 玩家只下載這一個檔案，然後雙擊執行：
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/LilithAI-Mod-Setup.exe)**
 
 Players download only this file, then run it:
 
-**[LilithAI-Mod-Setup.exe](https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/LilithAI-Mod-Setup.exe)**
+**[LilithAI-Mod-Setup.exe](https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/LilithAI-Mod-Setup.exe)**
 
 安裝器會自己下載核心包。補充台詞語音（約 301 MB，預設不勾選）和動態語音運行時（約 1.98 GB）也由安裝器取得，來源是原作者的 Release，不用自己去找，也不在本頁附件裡。
 
@@ -214,7 +215,7 @@ This is a free, non-commercial fan project. It is not authorized, endorsed, spon
 
 ### ✦ 「如果你願意，我就再陪你一會。」 ✦
 
-**Version 0.2.2 · Publisher: Shxiao**  
+**Version 0.2.3 · Publisher: Shxiao**  
 Fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod) 0.1.1-RC4 · Contact: shxiao1115@gmail.com
 
 </div>

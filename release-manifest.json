@@ -1,9 +1,9 @@
 {
-  "version": "0.2.2",
+  "version": "0.2.3",
   "packages": {
     "core": {
       "file": "core.zip",
-      "url": "https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/core.zip",
+      "url": "https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/core.zip",
       "sha256": "B761334C219C9A5F256BA4459DC770EFCC74D290DBB335F90C2D66A98001687A",
       "bytes": 41726481
     },

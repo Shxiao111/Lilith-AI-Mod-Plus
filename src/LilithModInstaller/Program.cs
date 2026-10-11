@@ -32,7 +32,7 @@ internal static class Program
 
 internal sealed class ReleaseManifest
 {
-    public string Version { get; set; } = "0.2.2";
+    public string Version { get; set; } = "0.2.3";
     public Dictionary<string, PackageSpec> Packages { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
@@ -54,7 +54,7 @@ internal sealed class InstalledManifest
 internal sealed class InstallerForm : Form
 {
     private const string AppId = "4643090";
-    private const string DefaultManifestUrl = "https://github.com/Shxiao111/Lilith-AI-Mod-Plus/releases/download/v0.2.2/release-manifest.json";
+    private const string DefaultManifestUrl = "https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/release-manifest.json";
     private const string VoiceRuntimeReadySchema = "voice-runtime-v2";
     private readonly bool _zhTraditional;
     private readonly bool _zhSimplified;
@@ -460,25 +460,33 @@ internal sealed class InstallerForm : Form
             response.EnsureSuccessStatusCode();
             var total = response.Content.Headers.ContentLength ?? spec.Bytes;
             await using var source = await response.Content.ReadAsStreamAsync();
-            await using var destination = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None);
-            var buffer = new byte[1024 * 256];
-            long received = 0;
-            int read;
-            while ((read = await source.ReadAsync(buffer)) > 0)
+            // The stream must be closed before the move; FileShare.None makes File.Move fail while it is open.
+            await using (var destination = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                await destination.WriteAsync(buffer.AsMemory(0, read));
-                received += read;
-                if (total > 0) _progress.Value = Math.Clamp((int)(received * 70 / total), 0, 70);
-                SetStatus(string.Format(L("正在下載 {0}：{1:0.0} MB", "正在下载 {0}：{1:0.0} MB", "{0} をダウンロード中：{1:0.0} MB", "Downloading {0}: {1:0.0} MB"), name, received / 1048576d));
+                var buffer = new byte[1024 * 256];
+                long received = 0;
+                int read;
+                while ((read = await source.ReadAsync(buffer)) > 0)
+                {
+                    await destination.WriteAsync(buffer.AsMemory(0, read));
+                    received += read;
+                    if (total > 0) _progress.Value = Math.Clamp((int)(received * 70 / total), 0, 70);
+                    SetStatus(string.Format(L("正在下載 {0}：{1:0.0} MB", "正在下载 {0}：{1:0.0} MB", "{0} をダウンロード中：{1:0.0} MB", "Downloading {0}: {1:0.0} MB"), name, received / 1048576d));
+                }
             }
             File.Move(temporary, local, true);
         }
         if (!string.IsNullOrWhiteSpace(spec.Sha256))
         {
-            using var stream = File.OpenRead(local);
-            var hash = Convert.ToHexString(await SHA256.HashDataAsync(stream));
+            string hash;
+            using (var stream = File.OpenRead(local))
+                hash = Convert.ToHexString(await SHA256.HashDataAsync(stream));
             if (!hash.Equals(spec.Sha256, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Checksum mismatch for {spec.File}.");
+            {
+                // Remove the bad copy so the next attempt downloads it again instead of failing forever.
+                File.Delete(local);
+                throw new InvalidDataException($"Checksum mismatch for {spec.File}. Please try again.");
+            }
         }
         return local;
     }
