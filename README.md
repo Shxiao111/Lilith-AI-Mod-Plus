@@ -30,7 +30,7 @@ This unofficial AI extension for *The NOexistenceN of Lilith* keeps Lilith's qui
 
 This repository is a personal fork of [mimimi6666/Lilith-AI-Mod](https://github.com/mimimi6666/Lilith-AI-Mod). The installable release is **0.2.3**. Upstream `main` does not build against the current game; this branch does. It keeps the upstream terms and grants no extra license. The supplemental voice pack and the dynamic voice runtime are still downloaded from the original author's releases and are not republished here.
 
-- 0.2.3：安装器在下载结束后先关闭文件再移动；校验失败会删掉坏包，下次重新下载。核心包与 0.2.2 相同。 / 0.2.3 closes a finished download before moving it, and deletes a package that fails its checksum so the next run downloads it again. The core package is unchanged from 0.2.2.
+- 0.2.3：安装器在下载结束后先关闭文件再移动；校验失败会删掉坏包，下次重新下载。动态语音用的 NLTK 数据随安装包提供，安装时不再访问 GitHub。核心包与 0.2.2 相同。 / 0.2.3 closes a finished download before moving it, and deletes a package that fails its checksum so the next run downloads it again. NLTK data for the dynamic voice ships with this release, so setup no longer downloads it from GitHub. The core package is unchanged from 0.2.2.
 - 游戏设置左侧新增「AI」分页，聊天与语音识别分开配置 / The in-game settings gain an **AI** page. Chat and speech recognition are configured separately.
 - 适配当前游戏的设置界面 / The settings UI matches the current game build.
 - 补充台词语音默认不安装；只有勾选安装时才会打开补充语音 / The supplemental voice pack is off unless you choose to install it.
@@ -109,12 +109,14 @@ The installer downloads the core package by itself. The supplemental voice pack 
 發布頁上其餘檔案都不用下：
 
 - `core.zip`：核心包，安裝器會下載。
+- `nltk-data.zip`：語音朗讀英文單詞用的資料，安裝動態語音時安裝器會下載。
 - `release-manifest.json`：下載地址和校驗和，安裝器會下載。
 - `SHA256SUMS.txt`：只給想自行核對檔案的人。
 
 You do not need to download the other files on the release page:
 
 - `core.zip` is the core package. The installer downloads it.
+- `nltk-data.zip` is the data the voice uses to pronounce English words. The installer downloads it with the dynamic voice.
 - `release-manifest.json` holds the download addresses and checksums. The installer downloads it.
 - `SHA256SUMS.txt` is only for people who want to verify the files themselves.
 

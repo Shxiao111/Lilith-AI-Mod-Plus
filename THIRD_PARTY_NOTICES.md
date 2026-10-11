@@ -24,6 +24,10 @@ This release candidate includes, redistributes, or is capable of interoperating 
 * [PyTorch 2.6.0](https://github.com/pytorch/pytorch/releases/tag/v2.6.0) and [torchaudio 2.6.0](https://github.com/pytorch/audio/tree/v2.6.0)
   These components are downloaded and installed directly from upstream package sources during the optional AI voice installation process and are not prepackaged with the core MOD. Their applicable license terms, copyright notices, and third-party dependency information are governed by the files included with the versions actually installed and by the corresponding upstream releases.
 
+* [NLTK Data](https://github.com/nltk/nltk_data): `averaged_perceptron_tagger_eng`, `averaged_perceptron_tagger`, and `cmudict`
+  License: MIT for both taggers; the CMU Pronouncing Dictionary (`cmudict`) states that its use "for any research or commercial purpose, is completely unrestricted" and asks for acknowledgement of its origin when redistributed (see `corpora/cmudict/README`).
+  These unmodified NLTK data packages are redistributed in `nltk-data.zip` on this fork's release page. The installer extracts them into the voice runtime so GPT-SoVITS can pronounce English words. Source: `https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/`.
+
 * [FastAPI >= 0.115.2](https://github.com/fastapi/fastapi) / [Uvicorn](https://github.com/encode/uvicorn)
 
 * [Transformers 4.43-4.50](https://github.com/huggingface/transformers), [ONNX Runtime](https://github.com/microsoft/onnxruntime), [librosa 0.10.2](https://github.com/librosa/librosa/releases/tag/0.10.2), [pyopenjtalk-prebuilt](https://github.com/tsukumijima/pyopenjtalk-prebuilt), and their respective dependencies

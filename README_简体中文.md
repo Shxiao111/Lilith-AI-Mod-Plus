@@ -19,7 +19,7 @@
 8. **新增 4 个测试项目**：`LilithAiSettingsTests`、`LilithAiSettingsUiTests`、`LilithNativeVoiceCompatibilityTests`、`LilithVoicePolicyTests`（上游仓库没有 `tests/` 目录）。
 9. **补充语音包改为可选项**：官方中／日文配音已覆盖绝大多数台词，安装器的「完整中／日文补充台词语音」复选框默认不勾选；勾选安装时，安装器会把 `BepInEx/config/community.lilith.textinjector.cfg` 的 `NativeVoicePackEnabled` 自动写为 `true`，插件端默认值改为 `false`，未安装语音包的玩家不会再走补充语音分支。
 10. **0.2.2 连接不再手填 Provider ID**：新建聊天或语音连接由程序生成内部 ID，列表显示名称和协议；聊天协议保存在连接上。已有配置不用重新填写密钥。
-11. **0.2.3 安装器**：下载结束后先关闭文件再移动；校验失败会删除坏包，下次重新下载。核心包与 0.2.2 相同。
+11. **0.2.3 安装器**：下载结束后先关闭文件再移动；校验失败会删除坏包，下次重新下载。动态语音用的 NLTK 数据随安装包提供，安装时不再访问 GitHub。核心包与 0.2.2 相同。
 
 ### 同步上游
 
@@ -58,7 +58,7 @@ OpenAI 与 DeepSeek 目前仅提供**实验性的文字聊天兼容层**。基�
 
 **[LilithAI-Mod-Setup.exe](https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/LilithAI-Mod-Setup.exe)**
 
-安装器会自己下载核心包。补充台词语音和动态语音也由安装器下载，不用自己去找。发布页上的 `core.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用仓库页面的 `Code → Download ZIP`，那是源码。
+安装器会自己下载核心包。补充台词语音和动态语音也由安装器下载，不用自己去找。发布页上的 `core.zip`、`nltk-data.zip`、`release-manifest.json`、`SHA256SUMS.txt` 都不用下。不要用仓库页面的 `Code → Download ZIP`，那是源码。
 
 1. 运行 `LilithAI-Mod-Setup.exe`。
 2. 安装程序会读取 Steam 与所有 Steam Library，自动寻找游戏。只有无法定位时才需要选择包含 `Lilith.exe` 的文件夹。

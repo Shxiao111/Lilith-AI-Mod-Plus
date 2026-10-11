@@ -18,6 +18,12 @@
       "url": "https://github.com/mimimi6666/Lilith-AI-Mod/releases/download/v0.1.1-rc4/voice-runtime.zip",
       "sha256": "8AACBCD6B5595E1542D08D0B14B386CB3FB4EB46154AEA9B5FF1DA5484F42201",
       "bytes": 2080818204
+    },
+    "nltkData": {
+      "file": "nltk-data.zip",
+      "url": "https://github.com/shxiao-archive/Lilith-AI-Mod-Plus/releases/download/v0.2.3/nltk-data.zip",
+      "sha256": "08A8CC6B2DC322974B62476D5C8AFF63C1FA2E40A9E6BFB16C075A2741989AD1",
+      "bytes": 9926459
     }
   }
 }

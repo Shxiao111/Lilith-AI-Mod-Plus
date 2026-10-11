@@ -539,9 +539,7 @@ internal sealed class InstallerForm : Form
         SetStatus(L("正在安裝語音辨識與合成相依元件…", "正在安装语音识别与合成依赖组件…", "音声合成の依存コンポーネントをインストール中…", "Installing voice synthesis dependencies…"));
         await RunProcessWithRetryAsync(uv, $"pip install --link-mode copy --python \"{python}\" -r \"{requirements}\"", runtime);
         SetStatus(L("正在下載語音文字處理資料…", "正在下载语音文本处理数据…", "音声テキスト処理データを取得中…", "Downloading voice text-processing data…"));
-        var nltkData = Path.Combine(pythonDirectory, "nltk_data");
-        Directory.CreateDirectory(nltkData);
-        await RunProcessWithRetryAsync(python, $"-m nltk.downloader -d \"{nltkData}\" averaged_perceptron_tagger_eng cmudict", runtime);
+        await InstallNltkDataAsync(Path.Combine(pythonDirectory, "nltk_data"), runtime);
         await ValidateVoiceRuntimeDependenciesAsync(runtime, uv, python);
         WriteVoiceRuntimeReadyMarker(ready, temporaryReady);
     }
@@ -593,7 +591,7 @@ internal sealed class InstallerForm : Form
     private static async Task ValidateVoiceRuntimeDependenciesAsync(string runtime, string uv, string python)
     {
         await RunProcessAsync(uv, $"pip check --python \"{python}\"", runtime);
-        const string script = "import torch, torchaudio, nltk; nltk.data.find('taggers/averaged_perceptron_tagger_eng'); nltk.data.find('corpora/cmudict')";
+        const string script = "import torch, torchaudio, nltk; nltk.data.find('taggers/averaged_perceptron_tagger_eng'); nltk.data.find('taggers/averaged_perceptron_tagger.zip'); nltk.data.find('corpora/cmudict.zip')";
         await RunProcessAsync(python, $"-c \"{script}\"", runtime);
     }
 
@@ -611,6 +609,21 @@ internal sealed class InstallerForm : Form
             if (File.Exists(temporaryReady))
                 File.Delete(temporaryReady);
         }
+    }
+
+    // nltk-data.zip holds the NLTK data GPT-SoVITS needs for English words, laid out the way nltk.download
+    // leaves it (folder plus .zip): g2p_en checks for the .zip files, including the older
+    // averaged_perceptron_tagger, and downloads them on every voice host start if they are missing.
+    // It ships with this release because nltk.downloader rejects the fake-IP answers (198.18.0.0/15)
+    // that proxy TUN modes return for raw.githubusercontent.com, then waits forever for "Retry?" on stdin.
+    private async Task InstallNltkDataAsync(string nltkData, string runtime)
+    {
+        var package = await AcquirePackageAsync("nltkData");
+        Directory.CreateDirectory(nltkData);
+        using (var zip = ZipFile.OpenRead(package))
+            zip.ExtractToDirectory(nltkData, true);
+        await File.AppendAllTextAsync(Path.Combine(runtime, "voice-runtime-install.log"),
+            $"Installed NLTK data from {Path.GetFileName(package)}.\n", new UTF8Encoding(false));
     }
 
     private static async Task RunProcessWithRetryAsync(string file, string arguments, string workingDirectory, int maxAttempts = 3)
@@ -649,6 +662,7 @@ internal sealed class InstallerForm : Form
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
                 CreateNoWindow = true,
+                RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 StandardOutputEncoding = Encoding.UTF8,
@@ -657,6 +671,8 @@ internal sealed class InstallerForm : Form
         };
         process.StartInfo.Environment["PYTHONUTF8"] = "1";
         process.Start();
+        // Nobody can answer an interactive prompt here; closing stdin makes the tool fail instead of waiting forever.
+        process.StandardInput.Close();
         var outputTask = process.StandardOutput.ReadToEndAsync();
         var errorTask = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
